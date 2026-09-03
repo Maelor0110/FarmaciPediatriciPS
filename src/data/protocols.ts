@@ -71,23 +71,38 @@ export const EMERGENCY_PROTOCOLS: EmergencyProtocol[] = [
         priority: 'alta',
         actions: [
           'Ossigenoterapia ad alti flussi se distress respiratorio o ipossiemia (SpO2 < 94%).',
-          'Se ipotensione arteriosa persistente: reperire accesso venoso ed espansione con cristalloidi 10-20 mL/kg in 10 minuti.',
-          'Somministrare steroide (per prevenire reazione bifasica tardiva) e antistaminico (per sintomi cutanei).'
+          'Se ipotensione arteriosa persistente: reperire accesso venoso ed espansione con cristalloidi bilanciati 10-20 mL/kg in 10 minuti (max 1000 mL/bolo).',
+          'RIVALUTAZIONE STEROIDI (Linee Guida EAACI 2021 / AAAAI 2023): L\'uso routinario di corticosteroidi sistemici per prevenire la reazione bifasica NON è raccomandato dall\'evidenza scientifica (non riducono le reazioni bifasiche ed agiscono dopo 4-6 ore). Sono opzionali come terapia di 2ª linea solo in presenza di asma/broncospasmo concomitante o edema refrattario.',
+          'Antistaminico anti-H1 (Clorfenamina): farmaco di 2ª linea esclusivamente sintomatico per orticaria e prurito (non tratta ipotensione, shock o distress respiratorio).'
         ],
-        drugDoseCalculations: (w: number) => [
-          {
-            name: 'Clorfenamina (Trimeton)',
-            route: 'EV lenta o IM',
-            calculatedDose: `${Math.min(Number((w * 0.25).toFixed(1)), 10)} mg`,
-            instructions: 'Terapia di supporto per orticaria e prurito. Non previene il collasso o il broncospasmo.'
-          },
-          {
-            name: 'Idrocortisone (Flebocortid) o Metilprednisolone',
-            route: 'EV lenta / IM',
-            calculatedDose: `Idrocortisone: ${Math.min(Math.round(w * 4), 200)} mg | oppure Metilprednisolone: ${Math.min(Math.round(w * 1.5), 60)} mg`,
-            instructions: 'Effetto ritardato (ore). Previene la comparsa della fase bifasica.'
-          }
-        ]
+        drugDoseCalculations: (w: number) => {
+          const idroMg = Math.min(Math.round(w * 4), 200);
+          const metilMg = Math.min(Math.round(w * 1.5), 60);
+          const trimetonMg = Math.min(Number((w * 0.2).toFixed(1)), 10);
+          const isTrimetonMax = w * 0.2 >= 10;
+          const isIdroMax = w * 4 >= 200;
+
+          return [
+            {
+              name: 'Clorfenamina (Trimeton) EV lenta o IM',
+              route: 'EV lenta / IM',
+              calculatedDose: `${trimetonMg} mg (0,1-0,2 mg/kg, max 10 mg)`,
+              instructions: `Solo terapia sintomatica per prurito/orticaria (non salva la vita). ${isTrimetonMax ? 'Dose massima per singola somministrazione raggiunta (10 mg).' : ''}`
+            },
+            {
+              name: 'Idrocortisone EV lenta / IM (Opzione 2ª linea se asma associato)',
+              route: 'EV lenta / IM',
+              calculatedDose: `${idroMg} mg (4 mg/kg, max 200 mg)`,
+              instructions: `Indicazione limitata a broncospasmo/asma persistente (EAACI 2021: NON previene la reazione bifasica). ${isIdroMax ? 'Raggiunta dose massima pediatrica (200 mg).' : ''}`
+            },
+            {
+              name: 'Metilprednisolone EV (Alternativa steroidea)',
+              route: 'EV lenta in 5 min',
+              calculatedDose: `${metilMg} mg (1-2 mg/kg, max 60 mg)`,
+              instructions: 'Opzionale in caso di broncospasmo severo associato. Non sostituisce l\'adrenalina né l\'osservazione clinica.'
+            }
+          ];
+        }
       },
       {
         title: '3. Periodo di Osservazione Clinica e Dimissione',

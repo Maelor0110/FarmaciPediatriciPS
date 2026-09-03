@@ -9,51 +9,63 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'analgesici',
     sectionNum: 2,
     sectionTitle: 'Analgesici e Antipiretici',
-    summaryDose: '15 mg/kg/dose ogni 6h (max 1 g/dose, max 60 mg/kg/die o 4 g/die)',
+    summaryDose: 'OS/PR: 15 mg/kg/dose ogni 6h (max 1 g singola, max 60 mg/kg/die o 4 g/die) | EV: <10kg 7,5-10 mg/kg; ≥10kg 15 mg/kg (max 1 g/dose)',
     routes: ['OS', 'PR', 'EV'],
     indications: ['Dolore lieve-moderato', 'Febbre (T > 38°C con malessere)'],
     contraindications: ['Insufficienza epatica grave', 'Ipersensibilità nota al paracetamolo'],
     adverseEffectsAndNotes: [
       'Antipiretico/analgesico di prima scelta in età pediatrica.',
-      'Epatotossico in sovradosaggio: rispettare scrupolosamente la dose massima/die.',
+      'Epatotossico in sovradosaggio: rispettare scrupolosamente la dose massima pediatrica giornaliera.',
+      'Neonato/lattante < 10 kg EV: non superare 30-40 mg/kg/die totali.',
       'In caso di tossicità acuta: Antidoto N-Acetilcisteina.'
     ],
     calculateDoses: (w: number) => {
       const doseOral = Math.min(Math.round(w * 15), 1000);
       const isMax = w * 15 >= 1000;
-      const maxDaily = Math.min(Math.round(w * 60), 4000);
+      const maxDailyOral = Math.min(Math.round(w * 60), 4000);
       const syrVol = (doseOral / 24).toFixed(1); // sciroppo 120mg/5mL = 24 mg/mL
       const drops = Math.round(doseOral / 3.6); // gocce 100mg/mL ~ 2.8 mg/goccia
 
-      const evDose = w < 10 
-        ? `${Math.round(w * 7.5)}-${Math.round(w * 10)} mg`
-        : `${doseOral} mg`;
+      const evSingleDose = w < 10 
+        ? Math.round(w * 10) 
+        : Math.min(Math.round(w * 15), 1000);
+      const evSingleText = w < 10 
+        ? `${Math.round(w * 7.5)} - ${Math.round(w * 10)} mg`
+        : `${evSingleDose} mg`;
+      const evMaxDaily = w < 10 
+        ? Math.round(w * 30) 
+        : w < 33 
+          ? 2000 
+          : w < 50 
+            ? 3000 
+            : 4000;
 
       return [
         {
           label: 'Orale / Rettale',
           route: 'OS / PR',
-          rawFormula: '15 mg/kg/dose ogni 6h (max 1 g singola; max 60 mg/kg/die o 4 g/die)',
+          rawFormula: '15 mg/kg/dose ogni 6h (max 1.000 mg singola dose; max 60 mg/kg/die o 4 g/die)',
           calculatedValue: `${doseOral} mg`,
           unit: 'mg',
           numericDose: doseOral,
           volumeInfo: `Sciroppo 120 mg/5 mL (24 mg/mL): ~${syrVol} mL | Gocce 100 mg/mL: ~${drops} gtt`,
-          maxDoseCap: 'Max 1.000 mg (1 g) singola dose | Max die: ' + maxDaily + ' mg',
+          maxDoseCap: `Max singola: 1.000 mg (1 g) | Max die: ${maxDailyOral} mg/die`,
           isMaxDoseReached: isMax,
           frequencyOrDuration: 'Ogni 6 ore (max 4 somministrazioni/24h)'
         },
         {
           label: 'Endovenoso (EV lenta in 15 min)',
           route: 'EV',
-          rawFormula: 'Neonato/lattante <10 kg: 7,5-10 mg/kg ogni 6h; ≥10 kg: 15 mg/kg ogni 6h (max 1 g)',
-          calculatedValue: evDose,
+          rawFormula: 'Neonato/lattante <10 kg: 7,5-10 mg/kg ogni 6h; ≥10 kg: 15 mg/kg ogni 6h (max 1.000 mg)',
+          calculatedValue: evSingleText,
           unit: 'mg',
+          numericDose: evSingleDose,
           volumeInfo: w < 10 
             ? `Soluzione 10 mg/mL: ${(w * 0.75).toFixed(1)} - ${(w * 1.0).toFixed(1)} mL`
-            : `Soluzione 10 mg/mL (Perfalgan 100 mL): ${(doseOral / 10).toFixed(1)} mL`,
-          maxDoseCap: 'Max 1.000 mg per dose',
-          isMaxDoseReached: isMax,
-          frequencyOrDuration: 'Ogni 6 ore'
+            : `Soluzione 10 mg/mL (Perfalgan): ${(evSingleDose / 10).toFixed(1)} mL`,
+          maxDoseCap: `Max singola: ${w < 10 ? Math.round(w * 10) : 1000} mg | Max die EV: ${evMaxDaily} mg/die`,
+          isMaxDoseReached: w >= 10 && w * 15 >= 1000,
+          frequencyOrDuration: 'Ogni 6 ore in infusione di 15 minuti'
         }
       ];
     }
@@ -65,7 +77,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'analgesici',
     sectionNum: 2,
     sectionTitle: 'Analgesici e Antipiretici',
-    summaryDose: '5-10 mg/kg/dose ogni 6-8h OS (max 40 mg/kg/die o 2,4 g/die)',
+    summaryDose: '5-10 mg/kg/dose ogni 6-8h OS (max singola 400 mg bambino / 800 mg adolescente, max 2,4 g/die)',
     routes: ['OS'],
     indications: [
       'Dolore lieve-moderato',
@@ -82,13 +94,15 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     ],
     adverseEffectsAndNotes: [
       'Gastrolesivo: somministrare preferibilmente a stomaco pieno o con latte.',
+      'Dose massima pediatrica: nei bambini <12 anni (<40 kg) la dose singola massima raccomandata è 400 mg e giornaliera 1.200 mg/die; negli adolescenti ≥12 anni e adulti max singola 800 mg e giornaliera 2.400 mg/die.',
       'Evitare assolutamente nel bambino disidratato per rischio nefrotossicità acuta.'
     ],
     calculateDoses: (w: number) => {
-      const minDose = Math.min(Math.round(w * 5), 800);
-      const maxDose = Math.min(Math.round(w * 10), 800);
-      const isMax = w * 10 >= 800;
-      const maxDie = Math.min(Math.round(w * 40), 2400);
+      const maxSingleCap = w < 40 ? 400 : 800;
+      const minDose = Math.min(Math.round(w * 5), maxSingleCap);
+      const maxDose = Math.min(Math.round(w * 10), maxSingleCap);
+      const isMax = w * 10 >= maxSingleCap;
+      const maxDie = Math.min(Math.round(w * 40), w < 40 ? 1200 : 2400);
       // Sciroppo 100 mg/5 mL (20 mg/mL) o 200 mg/5 mL (40 mg/mL)
       const vol100 = (maxDose / 20).toFixed(1);
       const vol200 = (maxDose / 40).toFixed(1);
@@ -97,14 +111,14 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Orale (Sospensione / Compresse)',
           route: 'OS',
-          rawFormula: '5-10 mg/kg/dose ogni 6-8h (max 40 mg/kg/die o 2,4 g/die; max 800 mg/dose)',
+          rawFormula: `5-10 mg/kg/dose ogni 6-8h (max ${maxSingleCap} mg/dose; max die ${maxDie} mg/die)`,
           calculatedValue: `${minDose} - ${maxDose} mg`,
           unit: 'mg',
           numericDose: maxDose,
           volumeInfo: `A 10 mg/kg -> Sosp. 100 mg/5 mL: ${vol100} mL | Sosp. 200 mg/5 mL: ${vol200} mL`,
-          maxDoseCap: `Max singola: 800 mg | Max giornaliera: ${maxDie} mg/die`,
+          maxDoseCap: `Max singola: ${maxSingleCap} mg (${w < 40 ? 'pediatrica <12 anni' : 'adolescente/adulto'}) | Max die: ${maxDie} mg/die`,
           isMaxDoseReached: isMax,
-          frequencyOrDuration: 'Ogni 6-8 ore al bisogno (a stomaco pieno)'
+          frequencyOrDuration: 'Ogni 6-8 ore al bisogno (a stomaco pieno, max 3-4 volte/die)'
         }
       ];
     }
@@ -159,7 +173,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'analgesici',
     sectionNum: 2,
     sectionTitle: 'Analgesici e Antipiretici',
-    summaryDose: '0,05-0,1 mg/kg/dose EV lenta ogni 2-4h | Infusione: 0,01-0,04 mg/kg/h',
+    summaryDose: '0,05-0,1 mg/kg/dose EV lenta ogni 2-4h (max singola 5 mg bambino / 10 mg adolescente) | Infusione: 0,01-0,04 mg/kg/h',
     routes: ['EV', 'SC', 'IM'],
     indications: ['Dolore severo (trauma grave, ustioni estese, dolore oncologico, post-chirurgico)'],
     contraindications: [
@@ -171,14 +185,16 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     adverseEffectsAndNotes: [
       'Rischio depressione respiratoria e ipotensione: monitoraggio continuo SpO2, FR, FC, PA.',
       'Antidoto specifico: NALOXONE (tenere sempre disponibile al letto del paziente).',
+      'Dose massima pediatrica: max 5 mg per singola dose iniziale nei bambini <50 kg; max 10 mg negli adolescenti ≥50 kg e adulti.',
       'Titolare lentamente in bolo in almeno 5-10 minuti diluito in SF.'
     ],
     antidote: 'Naloxone (0,01-0,1 mg/kg)',
     highRisk: true,
     calculateDoses: (w: number) => {
-      const minDose = Number((w * 0.05).toFixed(2));
-      const maxDose = Math.min(Number((w * 0.1).toFixed(2)), 10);
-      const isMax = w * 0.1 >= 10;
+      const maxSingleCap = w < 50 ? 5 : 10;
+      const minDose = Number(Math.min(w * 0.05, maxSingleCap).toFixed(2));
+      const maxDose = Number(Math.min(w * 0.1, maxSingleCap).toFixed(2));
+      const isMax = w * 0.1 >= maxSingleCap;
       // Fiala 10 mg/mL -> diluita 1:10 con SF a 1 mg/mL per facilità di aspirazione
       const volDilutedMin = (minDose * 1).toFixed(1);
       const volDilutedMax = (maxDose * 1).toFixed(1);
@@ -189,12 +205,12 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Bolo EV lento (5-10 min)',
           route: 'EV lenta / SC / IM',
-          rawFormula: '0,05-0,1 mg/kg/dose lenta, ripetibile ogni 2-4h (max singola 10 mg)',
+          rawFormula: `0,05-0,1 mg/kg/dose lenta, ripetibile ogni 2-4h (max singola ${maxSingleCap} mg)`,
           calculatedValue: `${minDose} - ${maxDose} mg`,
           unit: 'mg',
           numericDose: maxDose,
           volumeInfo: `Con diluizione standard a 1 mg/mL (1 fiala 10 mg portata a 10 mL con SF): somministrare ${volDilutedMin} - ${volDilutedMax} mL`,
-          maxDoseCap: 'Max 10 mg per dose iniziale',
+          maxDoseCap: `Max ${maxSingleCap} mg per dose iniziale (${w < 50 ? 'pediatrico' : 'adolescente/adulto'})`,
           isMaxDoseReached: isMax,
           frequencyOrDuration: 'Ripetibile ogni 2-4 ore se necessario sotto monitoraggio'
         },
@@ -357,7 +373,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'sedazione',
     sectionNum: 3,
     sectionTitle: 'Sedazione e Analgesia Procedurale',
-    summaryDose: 'EV: 1-1,5 mg/kg bolo lento (2 min), rip. 0,5 mg/kg | IM: 4-5 mg/kg',
+    summaryDose: 'EV: 1-1,5 mg/kg bolo lento (2 min, max 100-150 mg), rip. 0,5 mg/kg | IM: 4-5 mg/kg (max 200-250 mg)',
     routes: ['EV', 'IM'],
     indications: [
       'Sedoanalgesia procedurale (riduzione fratture/lussazioni, suture complesse, drenaggi)',
@@ -374,37 +390,45 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     adverseEffectsAndNotes: [
       'Scialorrea frequente: premedicare con Atropina se necessario.',
       'Reazioni di emergenza (allucinazioni, agitazione al risveglio): utile premedicare con Midazolam.',
+      'Dose massima: max 100 mg bolo EV iniziale (150 mg nell\'adolescente); max 200 mg IM (250 mg adolescente).',
       'Mantiene i riflessi delle vie aeree e il respiro spontaneo, ma preparare sempre presidi vie aeree.'
     ],
     highRisk: true,
     calculateDoses: (w: number) => {
-      const evMin = Number((w * 1.0).toFixed(1));
-      const evMax = Number((w * 1.5).toFixed(1));
-      const imMin = Number((w * 4.0).toFixed(1));
-      const imMax = Number((w * 5.0).toFixed(1));
+      const maxEvCap = w < 40 ? 100 : 150;
+      const maxImCap = w < 40 ? 200 : 250;
+      const evMin = Number(Math.min(w * 1.0, maxEvCap).toFixed(1));
+      const evMax = Number(Math.min(w * 1.5, maxEvCap).toFixed(1));
+      const imMin = Number(Math.min(w * 4.0, maxImCap).toFixed(1));
+      const imMax = Number(Math.min(w * 5.0, maxImCap).toFixed(1));
+      const isMaxEv = w * 1.5 >= maxEvCap;
+      const isMaxIm = w * 5.0 >= maxImCap;
       // Fiala 50 mg/mL (10 mg/mL dopo diluizione)
       const evVolConc = (evMin / 50).toFixed(2);
-      const evVolDil10 = (evMin / 10).toFixed(1);
 
       return [
         {
           label: 'EV bolo lento (in 2 minuti)',
           route: 'EV',
-          rawFormula: '1-1,5 mg/kg in bolo lento (2 min), ripetibile 0,5 mg/kg al bisogno',
+          rawFormula: `1-1,5 mg/kg in bolo lento (2 min), max ${maxEvCap} mg; rip. 0,5 mg/kg al bisogno`,
           calculatedValue: `${evMin} - ${evMax} mg`,
           unit: 'mg',
           numericDose: evMin,
           volumeInfo: `Se diluito a 10 mg/mL con SF: somministrare ${(evMin/10).toFixed(1)} - ${(evMax/10).toFixed(1)} mL (da fiala 50 mg/mL: ${evVolConc} mL)`,
+          maxDoseCap: `Max ${maxEvCap} mg bolo iniziale (${w < 40 ? 'bambino' : 'adolescente'})`,
+          isMaxDoseReached: isMaxEv,
           frequencyOrDuration: 'Inizio azione in 1 min, durata 10-15 min; ripetibile a 0,5 mg/kg'
         },
         {
           label: 'IM (se accesso venoso assente)',
           route: 'IM',
-          rawFormula: '4-5 mg/kg/dose',
+          rawFormula: `4-5 mg/kg/dose (max ${maxImCap} mg)`,
           calculatedValue: `${imMin} - ${imMax} mg`,
           unit: 'mg',
           numericDose: imMin,
           volumeInfo: `Fiala da 50 mg/mL pura: ${(imMin / 50).toFixed(1)} - ${(imMax / 50).toFixed(1)} mL IM`,
+          maxDoseCap: `Max ${maxImCap} mg (${w < 40 ? 'bambino' : 'adolescente'})`,
+          isMaxDoseReached: isMaxIm,
           frequencyOrDuration: 'Inizio azione in 3-5 min, durata 20-30 min'
         }
       ];
@@ -417,7 +441,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'sedazione',
     sectionNum: 3,
     sectionTitle: 'Sedazione e Analgesia Procedurale',
-    summaryDose: 'EV: 1-2 mg/kg bolo lento, mantenimento 1-2 mg/kg ripetibile',
+    summaryDose: 'EV: 1-2 mg/kg bolo lento (max 100-200 mg), mantenimento 1-2 mg/kg ripetibile',
     routes: ['EV'],
     indications: ['Sedazione procedurale profonda (solo personale esperto in gestione avanzata vie aeree)'],
     contraindications: [
@@ -427,13 +451,16 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     ],
     adverseEffectsAndNotes: [
       'Elevato rischio di apnea transitoria e ipotensione arteriosa.',
+      'Dose massima bolo: max 100 mg nel bambino piccolo, max 200 mg nell\'adolescente.',
       'Necessita di monitoraggio avanzato continuo e disponibilità immediata di presidi per intubazione.',
       'Riservato ad anestesisti / rianimatori o medici d\'urgenza specificamente accreditati.'
     ],
     highRisk: true,
     calculateDoses: (w: number) => {
-      const minDose = Number((w * 1.0).toFixed(1));
-      const maxDose = Number((w * 2.0).toFixed(1));
+      const maxCap = w < 40 ? 100 : 200;
+      const minDose = Number(Math.min(w * 1.0, maxCap).toFixed(1));
+      const maxDose = Number(Math.min(w * 2.0, maxCap).toFixed(1));
+      const isMax = w * 2.0 >= maxCap;
       // Formulazione 1% = 10 mg/mL
       const volMin = (minDose / 10).toFixed(1);
       const volMax = (maxDose / 10).toFixed(1);
@@ -442,11 +469,13 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Bolo EV lento',
           route: 'EV',
-          rawFormula: '1-2 mg/kg bolo lento, mantenimento 1-2 mg/kg ripetibile a risposta',
+          rawFormula: `1-2 mg/kg bolo lento (max ${maxCap} mg), mantenimento 1-2 mg/kg ripetibile a risposta`,
           calculatedValue: `${minDose} - ${maxDose} mg`,
           unit: 'mg',
           numericDose: minDose,
           volumeInfo: `Emulsione 10 mg/mL (1%): ${volMin} - ${volMax} mL EV lento`,
+          maxDoseCap: `Max ${maxCap} mg per singolo bolo iniziale`,
+          isMaxDoseReached: isMax,
           frequencyOrDuration: 'Titolare lentamente sotto controllo continuo vie aeree'
         }
       ];
@@ -461,7 +490,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'respiratorie',
     sectionNum: 4,
     sectionTitle: 'Emergenze Respiratorie (Asma, Croup)',
-    summaryDose: 'Nebulizzato: <20kg 2,5 mg, >20kg 5 mg ogni 20 min (3 dosi) | Puff: 2-10 puff | EV: bolo 15 mcg/kg poi 1-5 mcg/kg/min',
+    summaryDose: 'Nebulizzato: <20kg 2,5 mg, ≥20kg 5 mg ogni 20 min (3 dosi) | Puff: 2-10 puff | EV: bolo 15 mcg/kg (max 250 mcg) poi 1-5 mcg/kg/min',
     routes: ['Inalatoria', 'EV'],
     indications: [
       'Crisi asmatica acuta / broncospasmo',
@@ -474,11 +503,13 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     ],
     adverseEffectsAndNotes: [
       'Tachicardia, tremori muscolari, ipokaliemia transitoria.',
+      'Dose massima: max 5 mg per singola nebulizzazione; max 250 mcg in bolo EV iniziale.',
       'Se somministrato per via EV prolungata: monitorare K+ plasmatico ed ECG continuo.'
     ],
     calculateDoses: (w: number) => {
       const nebDose = w < 20 ? '2,5 mg (1 fiala monodose o 0,5 mL sol. 0,5%)' : '5 mg (2 fiale monodose o 1 mL sol. 0,5%)';
-      const evBolo = Number((w * 15).toFixed(0)); // mcg
+      const evBolo = Math.min(Number((w * 15).toFixed(0)), 250); // max 250 mcg
+      const isMaxEv = w * 15 >= 250;
       const evInfMin = (w * 1).toFixed(1);
       const evInfMax = (w * 5).toFixed(1);
 
@@ -486,10 +517,12 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Nebulizzato (aerosol con O2)',
           route: 'Inalatoria',
-          rawFormula: '<20 kg: 2,5 mg; ≥20 kg: 5 mg ogni 20 min per 3 dosi, poi orario',
+          rawFormula: '<20 kg: 2,5 mg; ≥20 kg: 5 mg ogni 20 min per 3 dosi, poi orario (max 5 mg)',
           calculatedValue: nebDose,
           unit: 'mg',
           volumeInfo: w < 20 ? 'Diluire con SF fino a 3-4 mL nel nebulizzatore' : 'Diluire con SF fino a 4 mL',
+          maxDoseCap: 'Max 5 mg per singola nebulizzazione',
+          isMaxDoseReached: w >= 20,
           frequencyOrDuration: 'Ripetibile ogni 20 minuti per 3 dosi nell\'ora iniziale, poi ogni 1-4h'
         },
         {
@@ -498,16 +531,20 @@ export const DRUGS_GROUP_1: DrugItem[] = [
           rawFormula: '2-10 puff ogni 20 minuti (1 puff = 100 mcg, attendere 4-6 respiri per puff)',
           calculatedValue: w < 20 ? '2 - 6 puff' : '4 - 10 puff',
           unit: 'puff',
+          maxDoseCap: 'Max 10 puff per singola serie',
+          isMaxDoseReached: w >= 20,
           preparationAdvice: 'Agitare bene la bomboletta, erogare 1 puff alla volta nel distanziatore.',
           frequencyOrDuration: 'Ripetibile ogni 20 minuti nella prima ora'
         },
         {
           label: 'EV bolo (crisi grave refrattaria)',
           route: 'EV',
-          rawFormula: 'Bolo 15 mcg/kg in 10 min, poi infusione 1-5 mcg/kg/min',
+          rawFormula: 'Bolo 15 mcg/kg in 10 min (max 250 mcg), poi infusione 1-5 mcg/kg/min',
           calculatedValue: `${evBolo} mcg in bolo`,
           unit: 'mcg',
           volumeInfo: `Infusione continua di mantenimento successiva: ${evInfMin} - ${evInfMax} mcg/min`,
+          maxDoseCap: 'Max 250 mcg per bolo iniziale in 10 min',
+          isMaxDoseReached: isMaxEv,
           frequencyOrDuration: 'Bolo infuso in 10 minuti sotto monitoraggio ECG'
         }
       ];
@@ -520,7 +557,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'respiratorie',
     sectionNum: 4,
     sectionTitle: 'Emergenze Respiratorie (Asma, Croup)',
-    summaryDose: 'Nebulizzato: <20kg 250 mcg, >20kg 500 mcg ogni 20 min per 3 dosi (associato a salbutamolo)',
+    summaryDose: 'Nebulizzato: <20kg 250 mcg, ≥20kg 500 mcg ogni 20 min per 3 dosi (associato a salbutamolo)',
     routes: ['Inalatoria'],
     indications: ['Crisi asmatica moderata-severa (in associazione a beta-2 agonisti nella prima ora)'],
     contraindications: [
@@ -529,6 +566,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     ],
     adverseEffectsAndNotes: [
       'Effetto sinergico con salbutamolo nelle prime ore di trattamento.',
+      'Dose massima: max 500 mcg per dose (1 fiala da 0,5 mg).',
       'Possibile secchezza delle fauci, sapore amaro, midriasi da contatto oculare accidentale.'
     ],
     calculateDoses: (w: number) => {
@@ -541,6 +579,8 @@ export const DRUGS_GROUP_1: DrugItem[] = [
           calculatedValue: `${doseMcg} mcg`,
           unit: 'mcg',
           volumeInfo: w < 20 ? '1 fiala monodose da 250 mcg (1 mL)' : '1 fiala monodose da 500 mcg (2 mL)',
+          maxDoseCap: 'Max 500 mcg per singola nebulizzazione',
+          isMaxDoseReached: w >= 20,
           frequencyOrDuration: 'Ogni 20 min per le prime 3 dosi nella prima ora di terapia'
         }
       ];
@@ -798,10 +838,10 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'anafilassi',
     sectionNum: 5,
     sectionTitle: 'Anafilassi e Reazioni Allergiche Severe',
-    summaryDose: '0,25 mg/kg/dose EV/IM (max 10 mg)',
+    summaryDose: '0,1-0,25 mg/kg/dose EV/IM (max singola 2,5-5 mg bambino, max 10 mg adolescente; max 20-40 mg/die)',
     routes: ['EV', 'IM', 'OS'],
     indications: [
-      'Anafilassi (terapia adiuvante di seconda linea, MAI sostitutiva dell\'adrenalina)',
+      'Anafilassi (terapia adiuvante di seconda linea per sintomi cutanei/pruriginosi, MAI sostitutiva dell\'adrenalina)',
       'Orticaria acuta ed angioedema'
     ],
     contraindications: [
@@ -809,12 +849,14 @@ export const DRUGS_GROUP_1: DrugItem[] = [
       'Asma acuto severo (effetto di essiccamento delle secrezioni mucose, cautela)'
     ],
     adverseEffectsAndNotes: [
-      'Sedazione marcata, sonnolenza, secchezza fauci.',
+      'Sedazione marcata, sonnolenza, ipotensione transitoria per somministrazione rapida.',
+      'Dose massima pediatrica: max 2,5 mg nei bambini piccoli (<20 kg), max 5 mg nei bambini 20-40 kg, max 10 mg negli adolescenti e adulti.',
       'Non deve mai ritardare la somministrazione immediata di adrenalina!'
     ],
     calculateDoses: (w: number) => {
-      const dose = Math.min(Number((w * 0.25).toFixed(1)), 10);
-      const isMax = w * 0.25 >= 10;
+      const maxSingle = w < 20 ? 2.5 : w < 40 ? 5 : 10;
+      const dose = Math.min(Number((w * 0.2).toFixed(1)), maxSingle);
+      const isMax = w * 0.2 >= maxSingle;
       // Fiala 10 mg/mL
       const vol = (dose / 10).toFixed(2);
 
@@ -822,14 +864,14 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'EV lenta o IM',
           route: 'EV lenta / IM / OS',
-          rawFormula: '0,25 mg/kg/dose (max 10 mg)',
+          rawFormula: `0,1-0,25 mg/kg/dose lenta (max singola ${maxSingle} mg; max 20-40 mg/die)`,
           calculatedValue: `${dose} mg`,
           unit: 'mg',
           numericDose: dose,
-          volumeInfo: `Fiala da 10 mg/1 mL: aspirare ${vol} mL (diluire per EV)`,
-          maxDoseCap: 'Max 10 mg per dose',
+          volumeInfo: `Fiala da 10 mg/1 mL: aspirare ${vol} mL (diluire in SF per EV lenta in 5 min)`,
+          maxDoseCap: `Max ${maxSingle} mg per dose (${w < 20 ? '<20 kg' : w < 40 ? '20-40 kg' : 'adolescente/adulto'})`,
           isMaxDoseReached: isMax,
-          frequencyOrDuration: 'Somministrare lentamente'
+          frequencyOrDuration: 'Somministrare lentamente in 3-5 minuti'
         }
       ];
     }
@@ -841,34 +883,36 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'anafilassi',
     sectionNum: 5,
     sectionTitle: 'Anafilassi e Reazioni Allergiche Severe',
-    summaryDose: '4 mg/kg/dose EV/IM (max 200 mg)',
+    summaryDose: '4 mg/kg/dose EV/IM (max singola 100 mg bambino / 200 mg adolescente)',
     routes: ['EV', 'IM'],
     indications: [
-      'Anafilassi (prevenzione della reazione bifasica)',
-      'Crisi surrenalica acuta',
-      'Asma grave'
+      'Anafilassi (farmaco di 2ª linea opzionale: non raccomandato di routine da EAACI 2021; utile se concomitante asma o edema refrattario)',
+      'Crisi surrenalica acuta (insufficienza corticosurrenalica)',
+      'Shock settico refrattario alle catecolamine'
     ],
-    contraindications: ['Infezioni sistemiche non trattate'],
+    contraindications: ['Infezioni sistemiche non trattate (salvo shock settico)'],
     adverseEffectsAndNotes: [
-      'Effetto ritardato (richiede alcune ore per agire a livello genico): NON è un farmaco salvavita di prima linea per l\'acuzie!',
-      'Prima linea resta indiscutibilmente l\'Adrenalina IM.'
+      'RIVALUTAZIONE LINEE GUIDA EAACI 2021 / AAAAI 2023: I corticosteroidi sistemici NON sono più raccomandati di routine nell\'anafilassi per prevenire reazioni bifasiche (mancanza di evidenza e latenza d\'azione 4-6h).',
+      'L\'unica terapia di prima linea salvavita rimane l\'ADRENALINA IM precoce.',
+      'Dose massima pediatrica: max 100 mg per singola dose nei bambini <25 kg, max 200 mg negli adolescenti/adulti (max 400-800 mg/die).'
     ],
     calculateDoses: (w: number) => {
-      const dose = Math.min(Math.round(w * 4), 200);
-      const isMax = w * 4 >= 200;
+      const maxCap = w < 25 ? 100 : 200;
+      const dose = Math.min(Math.round(w * 4), maxCap);
+      const isMax = w * 4 >= maxCap;
 
       return [
         {
           label: 'Endovenoso / Intramuscolare',
           route: 'EV / IM',
-          rawFormula: '4 mg/kg/dose (max 200 mg)',
+          rawFormula: `4 mg/kg/dose (max ${maxCap} mg)`,
           calculatedValue: `${dose} mg`,
           unit: 'mg',
           numericDose: dose,
-          volumeInfo: `Flacone 100 mg o 500 mg ricostituito`,
-          maxDoseCap: 'Max 200 mg per dose',
+          volumeInfo: `Flacone 100 mg o 500 mg ricostituito con solvente`,
+          maxDoseCap: `Max ${maxCap} mg per dose (${w < 25 ? 'bambino <25 kg' : 'adolescente/adulto'}) | Max die: ${maxCap * 4} mg/die`,
           isMaxDoseReached: isMax,
-          frequencyOrDuration: 'Ripetibile ogni 6 ore se necessario'
+          frequencyOrDuration: 'Ripetibile ogni 6 ore se clinicamente indicato'
         }
       ];
     }
@@ -880,25 +924,34 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'anafilassi',
     sectionNum: 5,
     sectionTitle: 'Anafilassi e Reazioni Allergiche Severe',
-    summaryDose: '1-2 mg/kg/dose EV (max 60-80 mg)',
+    summaryDose: '1-2 mg/kg/dose EV (max singola 60 mg bambino / 80 mg adolescente)',
     routes: ['EV'],
-    indications: ['Anafilassi (alternativa a idrocortisone)', 'Asma grave acuto', 'Edema laringeo'],
+    indications: [
+      'Anafilassi (2ª linea opzionale secondo EAACI 2021, solo in caso di broncospasmo/asma severo concomitante)',
+      'Asma grave acuto refrattario',
+      'Edema laringeo / Croup severo'
+    ],
     contraindications: ['Infezioni fungine sistemiche'],
-    adverseEffectsAndNotes: ['Alternativa rapida all\'idrocortisone nella gestione post-acuta.'],
+    adverseEffectsAndNotes: [
+      'Linee guida EAACI 2021: i glucocorticoidi non prevengono le reazioni bifasiche e non sono farmaci di 1ª linea nell\'anafilassi acuta.',
+      'Dose massima pediatrica: max 60 mg/dose nel bambino (<40 kg), max 80 mg/dose nell\'adolescente/adulto.'
+    ],
     calculateDoses: (w: number) => {
-      const minDose = Math.min(Math.round(w * 1), 80);
-      const maxDose = Math.min(Math.round(w * 2), 80);
-      const isMax = w * 2 >= 80;
+      const maxCap = w < 40 ? 60 : 80;
+      const minDose = Math.min(Math.round(w * 1), maxCap);
+      const maxDose = Math.min(Math.round(w * 2), maxCap);
+      const isMax = w * 2 >= maxCap;
 
       return [
         {
-          label: 'Endovenoso bolo lento',
+          label: 'Endovenoso bolo lento (in 3-5 min)',
           route: 'EV',
-          rawFormula: '1-2 mg/kg/dose (max 60-80 mg)',
+          rawFormula: `1-2 mg/kg/dose (max ${maxCap} mg)`,
           calculatedValue: `${minDose} - ${maxDose} mg`,
           unit: 'mg',
           numericDose: maxDose,
-          maxDoseCap: 'Max 60-80 mg per dose',
+          volumeInfo: `Flacone da 40 mg o 125 mg ricostituito con solvente`,
+          maxDoseCap: `Max ${maxCap} mg per dose (${w < 40 ? 'bambino <40 kg' : 'adolescente/adulto'})`,
           isMaxDoseReached: isMax,
           frequencyOrDuration: 'Ogni 6-12 ore'
         }
@@ -1449,18 +1502,22 @@ export const DRUGS_GROUP_1: DrugItem[] = [
       'Soluzione fortemente iperosmolare: diluire 1:1 con acqua per iniettabili nel neonato/lattante per ridurre osmolarità.'
     ],
     calculateDoses: (w: number) => {
-      const meq = Number((w * 1.0).toFixed(1)); // 1 mEq/kg = 1 mL/kg della sol. 8.4%
+      const meq = Math.min(Number((w * 1.0).toFixed(1)), 50); // 1 mEq/kg = 1 mL/kg della sol. 8.4%, max 50 mEq
+      const isMax = w * 1.0 >= 50;
+
       return [
         {
           label: 'EV lenta in 5-10 minuti',
           route: 'EV / IO',
-          rawFormula: '1 mEq/kg (= 1 mL/kg di sol. 8,4%). Diluire 1:1 con H2O sterile nel neonato/lattante.',
+          rawFormula: '1 mEq/kg (= 1 mL/kg di sol. 8,4%, max 50 mEq). Diluire 1:1 con H2O sterile nel neonato/lattante.',
           calculatedValue: `${meq} mEq (= ${meq} mL sol. 8,4%)`,
           unit: 'mEq',
           numericDose: meq,
           volumeInfo: w < 10 
             ? `Nel lattante <10 kg: aspirare ${meq} mL di sol. 8,4% + ${meq} mL di H2O sterile (totale ${(meq*2).toFixed(1)} mL al 4,2%)`
-            : `Soluzione pura 8,4%: ${meq} mL infusi lentamente`,
+            : `Soluzione pura 8,4%: ${meq} mL infusi lentamente in 5-10 min`,
+          maxDoseCap: 'Max 50 mEq (50 mL) per singola infusione',
+          isMaxDoseReached: isMax,
           frequencyOrDuration: 'Infusione lenta in 5-10 minuti. Lavare la via prima e dopo'
         }
       ];
@@ -1483,6 +1540,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     contraindications: ['NON MISCELARE CON SODIO BICARBONATO (rischio precipitazione immediata)'],
     adverseEffectsAndNotes: [
       'Somministrazione rigorosamente lenta: rischio di bradicardia grave e asistolia se somministrato rapidamente.',
+      'Dose massima pediatrica: max 20 mL per somministrazione (pari a 2.000 mg = 2 g).',
       'Stravaso provoca necrosi tissutale severa (verificare pervietà accesso venoso).'
     ],
     calculateDoses: (w: number) => {
@@ -1498,7 +1556,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
           calculatedValue: `${minMl} - ${maxMl} mL`,
           unit: 'mL',
           numericDose: maxMl,
-          maxDoseCap: 'Max 20 mL per somministrazione',
+          maxDoseCap: 'Max 20 mL (2.000 mg) per somministrazione',
           isMaxDoseReached: isMax,
           frequencyOrDuration: 'In 5-10 minuti sotto stretto monitoraggio del ritmo cardiaco'
         }
@@ -1512,7 +1570,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'cardiovascolari',
     sectionNum: 7,
     sectionTitle: 'Emergenze Cardiovascolari e ALS Pediatrico',
-    summaryDose: 'EV: 0,25-0,5 g/kg = Glucosata 10%: 2,5-5 mL/kg in bolo lento',
+    summaryDose: 'EV: 0,25-0,5 g/kg = Glucosata 10%: 2,5-5 mL/kg in bolo lento (max 250 mL)',
     routes: ['EV', 'IO'],
     indications: [
       'Ipoglicemia sintomatica acuta documentata (glicemia < 45-60 mg/dL in base all\'età e contesto clinico)',
@@ -1521,24 +1579,28 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     contraindications: ['Iperglicemia nota (verificare sempre glicemia con stick prima)'],
     adverseEffectsAndNotes: [
       'USARE SEMPRE GLUCOSATA AL 10% (0,1 g/mL): è la concentrazione sicura di prima scelta per via periferica.',
+      'Dose massima bolo: max 250 mL di glucosata 10% (= 25 g di glucosio) nel bambino.',
       'Concentrazioni ipertoniche (> 12,5%, come la glucosata 33% o 50%) rischiano gravi flebiti e necrosi tissutale da stravaso: evitare in bolo puro nel bambino piccolo.',
       'Ricontrollare la glicemia capillare entro 15-20 minuti dopo il bolo e avviare liquidi di mantenimento con glucosio.'
     ],
     calculateDoses: (w: number) => {
-      const gMin = Number((w * 0.25).toFixed(1));
-      const gMax = Number((w * 0.5).toFixed(1));
-      const mlMin = Number((w * 2.5).toFixed(1));
-      const mlMax = Number((w * 5.0).toFixed(1));
+      const mlMin = Math.min(Number((w * 2.5).toFixed(1)), 250);
+      const mlMax = Math.min(Number((w * 5.0).toFixed(1)), 250);
+      const isMax = w * 5.0 >= 250;
+      const gMin = (mlMin * 0.1).toFixed(1);
+      const gMax = (mlMax * 0.1).toFixed(1);
 
       return [
         {
           label: 'Bolo EV lento di Glucosata 10% (concentrazione raccomandata)',
           route: 'EV / IO',
-          rawFormula: '0,25-0,5 g/kg = 2,5-5 mL/kg di Glucosata 10% infusa lentamente in 3-5 minuti',
+          rawFormula: '0,25-0,5 g/kg = 2,5-5 mL/kg di Glucosata 10% infusa lentamente in 3-5 minuti (max 250 mL)',
           calculatedValue: `${mlMin} - ${mlMax} mL (= ${gMin} - ${gMax} g glucosio)`,
           unit: 'mL',
           numericDose: mlMin,
-          volumeInfo: `Aspirare ${mlMin} - ${mlMax} mL di Glucosata 10% pura da flacone/sacca e somministrare lentamente`,
+          volumeInfo: `Aspirare ${mlMin} - ${mlMax} mL di Glucosata 10% pura da flacone/sacca e somministrare lentamente in 3-5 min`,
+          maxDoseCap: 'Max 250 mL di Glucosata 10% (= 25 g di glucosio) per bolo',
+          isMaxDoseReached: isMax,
           frequencyOrDuration: 'Bolo lento in 3-5 minuti; ricontrollare glicemia a 15-20 min'
         }
       ];

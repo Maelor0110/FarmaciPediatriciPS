@@ -182,6 +182,8 @@ export const DRUGS_GROUP_2: DrugItem[] = [
       const meningiteTotal = Math.min(Math.round(w * 300), 12000);
       const stdSingle = Math.round(stdTotal / 4);
       const menSingle = Math.round(meningiteTotal / 4);
+      const isMaxStd = w * 150 >= 8000;
+      const isMaxMen = w * 300 >= 12000;
 
       return [
         {
@@ -191,6 +193,8 @@ export const DRUGS_GROUP_2: DrugItem[] = [
           calculatedValue: `${stdSingle} mg ogni 6h (totale ${stdTotal} mg/die)`,
           unit: 'mg',
           numericDose: stdSingle,
+          maxDoseCap: 'Max 8.000 mg (8 g) al giorno',
+          isMaxDoseReached: isMaxStd,
           frequencyOrDuration: 'Ogni 6 ore EV lenta (15-30 min)'
         },
         {
@@ -200,7 +204,8 @@ export const DRUGS_GROUP_2: DrugItem[] = [
           calculatedValue: `${menSingle} mg ogni 6h (totale ${meningiteTotal} mg/die)`,
           unit: 'mg',
           numericDose: menSingle,
-          maxDoseCap: 'Max 12 g/die',
+          maxDoseCap: 'Max 12.000 mg (12 g) al giorno',
+          isMaxDoseReached: isMaxMen,
           frequencyOrDuration: 'Ogni 6 ore'
         }
       ];
@@ -962,32 +967,36 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     highRisk: true,
     priorityEmergency: true,
     calculateDoses: (w: number) => {
-      const gMin = Number((w * 0.5).toFixed(1));
-      const gMax = Number((w * 1.0).toFixed(1));
+      const gMin = Math.min(Number((w * 0.5).toFixed(1)), 50);
+      const gMax = Math.min(Number((w * 1.0).toFixed(1)), 100);
+      const isMax = w * 1.0 >= 100;
       // Mannitolo 20% = 20 g / 100 mL = 0,2 g/mL -> mL = g * 5
       const mlMin = (gMin * 5).toFixed(0);
       const mlMax = (gMax * 5).toFixed(0);
-      const hypertonicSalineMin = Math.round(w * 5);
-      const hypertonicSalineMax = Math.round(w * 10);
+      const hypertonicSalineMin = Math.min(Math.round(w * 5), 250);
+      const hypertonicSalineMax = Math.min(Math.round(w * 10), 500);
 
       return [
         {
           label: 'Mannitolo 20% EV immediato (in 10-15 min)',
           route: 'EV rapido in 10-15 min',
-          rawFormula: '0,5-1 g/kg di Mannitolo 20% (= 2,5-5 mL/kg) in 10-15 minuti',
+          rawFormula: '0,5-1 g/kg di Mannitolo 20% (= 2,5-5 mL/kg, max 100 g / 500 mL) in 10-15 minuti',
           calculatedValue: `${gMin} - ${gMax} g (${mlMin} - ${mlMax} mL di Mannitolo 20%)`,
           unit: 'g',
           numericDose: gMin,
           volumeInfo: `Aspirare ${mlMin} - ${mlMax} mL di Mannitolo 20% e infondere in 10-15 minuti con filtro`,
+          maxDoseCap: 'Max 100 g (500 mL di sol. 20%) per singola somministrazione',
+          isMaxDoseReached: isMax,
           frequencyOrDuration: 'Immediatamente al minimo sospetto. Ripetibile dopo 30 min se non miglioramento'
         },
         {
           label: 'Alternativa: Soluzione Salina Ipertonica NaCl 3%',
           route: 'EV in 10-15 min',
-          rawFormula: '5-10 mL/kg di NaCl 3% in 10-15 minuti',
+          rawFormula: '5-10 mL/kg di NaCl 3% in 10-15 minuti (max 250-500 mL)',
           calculatedValue: `${hypertonicSalineMin} - ${hypertonicSalineMax} mL`,
           unit: 'mL',
           numericDose: hypertonicSalineMin,
+          maxDoseCap: 'Max 250-500 mL per bolo',
           frequencyOrDuration: 'In 10-15 minuti in alternativa al mannitolo'
         }
       ];
