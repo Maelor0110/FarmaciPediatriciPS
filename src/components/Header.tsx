@@ -1,13 +1,11 @@
 import React from 'react';
-import { Activity, AlertTriangle, ShieldCheck, FileText, Bookmark, Droplet, Calculator } from 'lucide-react';
+import { Activity, AlertTriangle, FileText, Bookmark, Droplet, Calculator } from 'lucide-react';
 
 export type ActiveTab = 'farmaci' | 'calcolatore' | 'emergenze' | 'infusioni' | 'lineeguida';
 
 interface HeaderProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
-  doubleCheckCount: number;
-  onOpenDoubleCheck: () => void;
   favoritesCount: number;
   showOnlyFavorites: boolean;
   setShowOnlyFavorites: (val: boolean) => void;
@@ -17,8 +15,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   activeTab,
   setActiveTab,
-  doubleCheckCount,
-  onOpenDoubleCheck,
   favoritesCount,
   showOnlyFavorites,
   setShowOnlyFavorites,
@@ -42,8 +38,8 @@ export const Header: React.FC<HeaderProps> = ({
                   Urgenza
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
-                Prontuario Rapido & Dosaggi di Emergenza
+              <p className="text-[11px] text-slate-400 font-medium">
+                Prontuario Rapido • <span className="text-teal-400/90 font-semibold">created by Dott. Maestri Lorenzo</span>
               </p>
             </div>
           </div>
@@ -126,20 +122,6 @@ export const Header: React.FC<HeaderProps> = ({
               {favoritesCount > 0 && (
                 <span className="bg-amber-400/20 text-amber-300 text-[11px] font-bold px-1.5 py-0.5 rounded-md border border-amber-400/30">
                   {favoritesCount}
-                </span>
-              )}
-            </button>
-
-            {/* Double check trigger tile */}
-            <button
-              onClick={onOpenDoubleCheck}
-              className="relative h-9 flex items-center space-x-1.5 px-3 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all text-xs font-semibold"
-            >
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span className="hidden sm:inline">Doppio Controllo</span>
-              {doubleCheckCount > 0 && (
-                <span className="bg-emerald-500 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded-full shadow-xs">
-                  {doubleCheckCount}
                 </span>
               )}
             </button>

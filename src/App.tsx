@@ -22,7 +22,6 @@ import { PatientWeightBar } from './components/PatientWeightBar';
 import { DrugCard } from './components/DrugCard';
 import { InteractiveDosageCalculator } from './components/InteractiveDosageCalculator';
 import { WeightEstimatorModal } from './components/WeightEstimatorModal';
-import { DoubleCheckModal, DoubleCheckItem } from './components/DoubleCheckModal';
 import { EmergencyProtocolsView } from './components/EmergencyProtocolsView';
 import { InfusionCalculatorModal } from './components/InfusionCalculatorModal';
 import { FormulasAndGuidelinesView } from './components/FormulasAndGuidelinesView';
@@ -54,12 +53,8 @@ export default function App() {
     }
   });
 
-  // Double Check Items
-  const [doubleCheckItems, setDoubleCheckItems] = useState<DoubleCheckItem[]>([]);
-
   // Modals
   const [isEstimatorOpen, setIsEstimatorOpen] = useState<boolean>(false);
-  const [isDoubleCheckOpen, setIsDoubleCheckOpen] = useState<boolean>(false);
 
   // Current Broselow Zone
   const currentBroselow = useMemo(() => {
@@ -86,26 +81,6 @@ export default function App() {
     );
   };
 
-  const handleAddToDoubleCheck = (drug: DrugItem, dose: CalculatedDose) => {
-    const newItem: DoubleCheckItem = {
-      id: `${drug.id}-${Date.now()}`,
-      drug,
-      dose,
-      patientWeight,
-      addedAt: new Date()
-    };
-    setDoubleCheckItems(prev => [...prev, newItem]);
-    setIsDoubleCheckOpen(true);
-  };
-
-  const handleRemoveDoubleCheckItem = (id: string) => {
-    setDoubleCheckItems(prev => prev.filter(item => item.id !== id));
-  };
-
-  const handleClearAllDoubleCheck = () => {
-    setDoubleCheckItems([]);
-  };
-
   // Filtered drugs
   const filteredDrugs = useMemo(() => {
     let result = searchDrugs(searchQuery, selectedCategory);
@@ -128,8 +103,6 @@ export default function App() {
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        doubleCheckCount={doubleCheckItems.length}
-        onOpenDoubleCheck={() => setIsDoubleCheckOpen(true)}
         favoritesCount={favorites.length}
         showOnlyFavorites={showOnlyFavorites}
         setShowOnlyFavorites={setShowOnlyFavorites}
@@ -249,24 +222,14 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="pt-4 mt-2 border-t border-slate-100 grid grid-cols-3 gap-1.5 text-[11px]">
+                <div className="pt-4 mt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-slate-500 font-medium">Calcolo personalizzato</span>
                   <button
                     onClick={() => setActiveTab('calcolatore')}
-                    className="py-1.5 px-1 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 font-extrabold rounded-xl border border-blue-200/80 text-center transition-all truncate"
+                    className="text-blue-600 font-bold hover:text-blue-800 flex items-center space-x-1 transition-colors"
                   >
-                    Calcola Dose
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('infusioni')}
-                    className="py-1.5 px-1 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 text-slate-700 font-bold rounded-xl border border-slate-200/80 text-center transition-all truncate"
-                  >
-                    Pompa
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('emergenze')}
-                    className="py-1.5 px-1 bg-slate-50 hover:bg-rose-50 hover:text-rose-700 text-slate-700 font-bold rounded-xl border border-slate-200/80 text-center transition-all truncate"
-                  >
-                    Codici ALS
+                    <span>Apri Calcolatore</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -394,8 +357,6 @@ export default function App() {
                     patientWeight={patientWeight}
                     isFavorite={favorites.includes(drug.id)}
                     onToggleFavorite={toggleFavorite}
-                    onAddToDoubleCheck={handleAddToDoubleCheck}
-                    isAddedToDoubleCheck={doubleCheckItems.some(i => i.drug.id === drug.id)}
                     onOpenCalculator={(drugId) => {
                       setCalculatorDrugId(drugId);
                       setActiveTab('calcolatore');
@@ -434,7 +395,6 @@ export default function App() {
             setPatientWeight={setPatientWeight}
             selectedDrugId={calculatorDrugId}
             onSelectDrugId={setCalculatorDrugId}
-            onAddToDoubleCheck={handleAddToDoubleCheck}
             onOpenEstimator={() => setIsEstimatorOpen(true)}
             onViewDrugCatalog={(drugId) => {
               setSelectedCategory('all');
@@ -468,23 +428,13 @@ export default function App() {
         onApplyWeight={setPatientWeight}
       />
 
-      {/* Double Check & Administration Modal */}
-      <DoubleCheckModal
-        isOpen={isDoubleCheckOpen}
-        onClose={() => setIsDoubleCheckOpen(false)}
-        items={doubleCheckItems}
-        onRemoveItem={handleRemoveDoubleCheckItem}
-        onClearAll={handleClearAllDoubleCheck}
-        patientWeight={patientWeight}
-      />
-
       {/* Bento Footer */}
       <footer className="bg-white border-t border-slate-200/90 py-5 text-center text-xs text-slate-500 mt-auto">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
             <span className="font-semibold text-slate-700">Prontuario Farmaci Pediatrici PS © 2026</span>
-            <span className="text-slate-400">• Uso esclusivo ospedaliero ed emergenza-urgenza</span>
+            <span className="text-slate-400">• created by Dott. Maestri Lorenzo</span>
           </div>
           <span className="text-[11px] text-slate-400 font-medium">Verificare sempre la dose massima per peso e le caratteristiche del paziente</span>
         </div>

@@ -7,7 +7,6 @@ import {
   Copy, 
   Check, 
   Bookmark, 
-  PlusCircle, 
   LifeBuoy, 
   Info,
   Clock,
@@ -20,8 +19,6 @@ interface DrugCardProps {
   patientWeight: number;
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
-  onAddToDoubleCheck: (drug: DrugItem, dose: CalculatedDose) => void;
-  isAddedToDoubleCheck: boolean;
   onOpenCalculator?: (drugId: string) => void;
 }
 
@@ -30,8 +27,6 @@ export const DrugCard: React.FC<DrugCardProps> = ({
   patientWeight,
   isFavorite,
   onToggleFavorite,
-  onAddToDoubleCheck,
-  isAddedToDoubleCheck,
   onOpenCalculator
 }) => {
   const [expanded, setExpanded] = useState<boolean>(false);
@@ -208,18 +203,6 @@ export const DrugCard: React.FC<DrugCardProps> = ({
                       <span>Copia</span>
                     </>
                   )}
-                </button>
-
-                <button
-                  onClick={() => onAddToDoubleCheck(drug, dose)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-xl flex items-center space-x-1.5 transition-all border ${
-                    isAddedToDoubleCheck
-                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300 shadow-xs'
-                      : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200 shadow-xs'
-                  }`}
-                >
-                  <PlusCircle className="w-3.5 h-3.5" />
-                  <span>{isAddedToDoubleCheck ? 'Nel Controllo' : '+ Doppio Controllo'}</span>
                 </button>
               </div>
             </div>
