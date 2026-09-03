@@ -20,17 +20,22 @@ export const DRUGS_GROUP_1: DrugItem[] = [
       'In caso di tossicità acuta: Antidoto N-Acetilcisteina.'
     ],
     calculateDoses: (w: number) => {
-      const doseOral = Math.min(Math.round(w * 15), 1000);
+      const minOral = Math.min(Math.round(w * 10), 1000);
+      const maxOral = Math.min(Math.round(w * 15), 1000);
       const isMax = w * 15 >= 1000;
       const maxDailyOral = Math.min(Math.round(w * 60), 4000);
-      const syrVol = (doseOral / 24).toFixed(1); // sciroppo 120mg/5mL = 24 mg/mL
-      const drops = Math.round(doseOral / 3.6); // gocce 100mg/mL ~ 2.8 mg/goccia
+      const syrVolMin = (minOral / 24).toFixed(1); // sciroppo 120mg/5mL = 24 mg/mL
+      const syrVolMax = (maxOral / 24).toFixed(1);
+      const dropsMin = Math.round(w * 3); // gocce 100mg/mL: 3-4 gocce/kg/dose (~3,1 mg/goccia)
+      const dropsMax = Math.min(Math.round(w * 4), 320);
 
       const evSingleDose = w < 10 
         ? Math.round(w * 10) 
         : Math.min(Math.round(w * 15), 1000);
+      const evMin = w < 10 ? Math.round(w * 7.5) : evSingleDose;
+      const evMax = w < 10 ? Math.round(w * 10) : evSingleDose;
       const evSingleText = w < 10 
-        ? `${Math.round(w * 7.5)} - ${Math.round(w * 10)} mg`
+        ? `${evMin} - ${evMax} mg`
         : `${evSingleDose} mg`;
       const evMaxDaily = w < 10 
         ? Math.round(w * 30) 
@@ -44,14 +49,14 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Orale / Rettale',
           route: 'OS / PR',
-          rawFormula: '15 mg/kg/dose ogni 6h (max 1.000 mg singola dose; max 60 mg/kg/die o 4 g/die)',
-          calculatedValue: `${doseOral} mg`,
+          rawFormula: '10-15 mg/kg/dose ogni 4-6h (max 1.000 mg singola dose; max 60 mg/kg/die o 4 g/die)',
+          calculatedValue: minOral === maxOral ? `${maxOral} mg` : `${minOral} - ${maxOral} mg`,
           unit: 'mg',
-          numericDose: doseOral,
-          volumeInfo: `Sciroppo 120 mg/5 mL (24 mg/mL): ~${syrVol} mL | Gocce 100 mg/mL: ~${drops} gtt`,
+          numericDose: maxOral,
+          volumeInfo: `Sciroppo 120 mg/5 mL (24 mg/mL): ~${syrVolMin} - ${syrVolMax} mL | Gocce 100 mg/mL (~3,1 mg/gtt): ~${dropsMin} - ${dropsMax} gtt (3-4 gtt/kg)`,
           maxDoseCap: `Max singola: 1.000 mg (1 g) | Max die: ${maxDailyOral} mg/die`,
           isMaxDoseReached: isMax,
-          frequencyOrDuration: 'Ogni 6 ore (max 4 somministrazioni/24h)'
+          frequencyOrDuration: 'Ogni 4-6 ore al bisogno (max 4 somministrazioni nelle 24h)'
         },
         {
           label: 'Endovenoso (EV lenta in 15 min)',
@@ -61,7 +66,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
           unit: 'mg',
           numericDose: evSingleDose,
           volumeInfo: w < 10 
-            ? `Soluzione 10 mg/mL: ${(w * 0.75).toFixed(1)} - ${(w * 1.0).toFixed(1)} mL`
+            ? `Soluzione 10 mg/mL: ${(evMin / 10).toFixed(1)} - ${(evMax / 10).toFixed(1)} mL`
             : `Soluzione 10 mg/mL (Perfalgan): ${(evSingleDose / 10).toFixed(1)} mL`,
           maxDoseCap: `Max singola: ${w < 10 ? Math.round(w * 10) : 1000} mg | Max die EV: ${evMaxDaily} mg/die`,
           isMaxDoseReached: w >= 10 && w * 15 >= 1000,
@@ -145,23 +150,25 @@ export const DRUGS_GROUP_1: DrugItem[] = [
       'Monitorare la diuresi e la funzione renale.'
     ],
     calculateDoses: (w: number) => {
-      const dose = Math.min(Number((w * 0.5).toFixed(1)), 30);
+      const minDose = Math.min(Number((w * 0.25).toFixed(1)), 15);
+      const maxDose = Math.min(Number((w * 0.5).toFixed(1)), 30);
       const isMax = w * 0.5 >= 30;
       // Fiala 30 mg/mL
-      const vol = (dose / 30).toFixed(2);
+      const volMin = (minDose / 30).toFixed(2);
+      const volMax = (maxDose / 30).toFixed(2);
 
       return [
         {
           label: 'Endovenoso / Intramuscolare',
           route: 'EV / IM',
-          rawFormula: '0,5 mg/kg/dose ogni 6-8h (max 30 mg/dose; durata max 48-72h)',
-          calculatedValue: `${dose} mg`,
+          rawFormula: '0,25-0,5 mg/kg/dose ogni 6-8h (max 15-30 mg/dose; durata max 48-72h)',
+          calculatedValue: minDose === maxDose ? `${maxDose} mg` : `${minDose} - ${maxDose} mg`,
           unit: 'mg',
-          numericDose: dose,
-          volumeInfo: `Fiala 30 mg/1 mL: aspirare ~${vol} mL (diluire in SF per infusione EV in 15 min)`,
-          maxDoseCap: 'Max 30 mg per singola dose',
+          numericDose: maxDose,
+          volumeInfo: `Fiala 30 mg/1 mL: aspirare ~${volMin} - ${volMax} mL (diluire in SF per infusione EV in 15 min)`,
+          maxDoseCap: 'Max 15 mg (<16 anni) / 30 mg per singola dose; max 60-90 mg/die',
           isMaxDoseReached: isMax,
-          frequencyOrDuration: 'Ogni 6-8 ore (massimo 48-72 ore)'
+          frequencyOrDuration: 'Ogni 6-8 ore al bisogno (durata massima 48-72 ore)'
         }
       ];
     }
@@ -262,17 +269,18 @@ export const DRUGS_GROUP_1: DrugItem[] = [
       // Fiala standard 50 mcg/mL (0,05 mg/mL)
       const evVolMin = (evMin / 50).toFixed(2);
       const evVolMax = (evMax / 50).toFixed(2);
-      const inVol = (inMin / 50).toFixed(2);
+      const inVolMin = (inMin / 50).toFixed(2);
+      const inVolMax = (inMax / 50).toFixed(2);
 
       return [
         {
           label: 'Via Intranasale (IN con dispositivo MAD)',
           route: 'IN',
           rawFormula: '1,5-2 mcg/kg/dose (usare fiala pura 50 mcg/mL; max 100 mcg)',
-          calculatedValue: `${inMin} - ${inMax} mcg`,
+          calculatedValue: inMin === inMax ? `${inMax} mcg` : `${inMin} - ${inMax} mcg`,
           unit: 'mcg',
           numericDose: inMin,
-          volumeInfo: `Fiala da 50 mcg/mL pura: aspirare ~${inVol} mL (dividere metà volume per narice, max 0,5 mL/narice)`,
+          volumeInfo: `Fiala da 50 mcg/mL pura: aspirare ~${inVolMin} - ${inVolMax} mL (dividere metà volume per narice, max 0,5 mL/narice)`,
           maxDoseCap: 'Max 100 mcg per singola dose',
           isMaxDoseReached: w * 2 >= 100,
           frequencyOrDuration: 'Ripetibile dopo 10-15 min se analgesia incompleta'
@@ -281,10 +289,10 @@ export const DRUGS_GROUP_1: DrugItem[] = [
           label: 'Via Endovenosa (EV bolo lento in 2-3 min)',
           route: 'EV',
           rawFormula: '1-2 mcg/kg/dose lenta (max 50-100 mcg)',
-          calculatedValue: `${evMin} - ${evMax} mcg`,
+          calculatedValue: evMin === evMax ? `${evMax} mcg` : `${evMin} - ${evMax} mcg`,
           unit: 'mcg',
           numericDose: evMax,
-          volumeInfo: `Fiala da 50 mcg/mL: aspirare ${evVolMin} - ${evVolMax} mL (infondere lentamente)`,
+          volumeInfo: `Fiala da 50 mcg/mL: aspirare ${evVolMin} - ${evVolMax} mL (infondere lentamente in 2-3 min)`,
           maxDoseCap: 'Max singola dose 50-100 mcg',
           isMaxDoseReached: isMaxEv,
           frequencyOrDuration: 'Ripetibile ogni 30-60 min sotto monitoraggio'
@@ -301,7 +309,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'sedazione',
     sectionNum: 3,
     sectionTitle: 'Sedazione e Analgesia Procedurale',
-    summaryDose: 'EV: 0,05-0,1 mg/kg (max 2-4 mg) | IN/Buccale: 0,3-0,5 mg/kg (max 10 mg) | OS: 0,5 mg/kg | IM: 0,1-0,2 mg/kg',
+    summaryDose: 'EV: 0,05-0,1 mg/kg (max 2-4 mg) | IN/Buccale: 0,2-0,5 mg/kg (max 10 mg) | OS: 0,25-0,5 mg/kg (max 15-20 mg)',
     routes: ['EV', 'IN', 'Buccale', 'OS', 'IM', 'PR'],
     indications: [
       'Sedazione procedurale per manovre dolorose o ansiogene (riduzione fratture, suture complesse)',
@@ -323,16 +331,17 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     calculateDoses: (w: number) => {
       const evMin = Number(Math.min(w * 0.05, 2.5).toFixed(2));
       const evMax = Number(Math.min(w * 0.1, 4.0).toFixed(2));
-      const inMin = Number(Math.min(w * 0.3, 10).toFixed(2));
+      const inMin = Number(Math.min(w * 0.2, 10).toFixed(2));
       const inMax = Number(Math.min(w * 0.5, 10).toFixed(2));
-      const oralDose = Number(Math.min(w * 0.5, 20).toFixed(1));
+      const oralMin = Number(Math.min(w * 0.25, 20).toFixed(1));
+      const oralMax = Number(Math.min(w * 0.5, 20).toFixed(1));
 
       return [
         {
           label: 'Intranasale / Buccale (MAD o Buccolam)',
           route: 'IN / Buccale',
-          rawFormula: '0,3-0,5 mg/kg (max 10 mg)',
-          calculatedValue: `${inMin} - ${inMax} mg`,
+          rawFormula: '0,2-0,5 mg/kg (max 10 mg)',
+          calculatedValue: inMin === inMax ? `${inMax} mg` : `${inMin} - ${inMax} mg`,
           unit: 'mg',
           numericDose: inMin,
           volumeInfo: `Con fiala 5 mg/mL: ${(inMin / 5).toFixed(2)} - ${(inMax / 5).toFixed(2)} mL (metà per narice)`,
@@ -344,7 +353,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
           label: 'Endovenoso lento (2-3 min)',
           route: 'EV',
           rawFormula: '0,05-0,1 mg/kg/dose (max 2-4 mg)',
-          calculatedValue: `${evMin} - ${evMax} mg`,
+          calculatedValue: evMin === evMax ? `${evMax} mg` : `${evMin} - ${evMax} mg`,
           unit: 'mg',
           numericDose: evMax,
           volumeInfo: `Con fiala 1 mg/mL: ${evMin} - ${evMax} mL | Con fiala 5 mg/mL: ${(evMin/5).toFixed(2)} - ${(evMax/5).toFixed(2)} mL`,
@@ -355,10 +364,10 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Orale (pre-medicazione)',
           route: 'OS',
-          rawFormula: '0,5 mg/kg (max 15-20 mg)',
-          calculatedValue: `${oralDose} mg`,
+          rawFormula: '0,25-0,5 mg/kg (max 15-20 mg)',
+          calculatedValue: oralMin === oralMax ? `${oralMax} mg` : `${oralMin} - ${oralMax} mg`,
           unit: 'mg',
-          numericDose: oralDose,
+          numericDose: oralMax,
           maxDoseCap: 'Max 15-20 mg',
           isMaxDoseReached: w * 0.5 >= 20,
           frequencyOrDuration: 'Somministrare 20-30 min prima della procedura'
@@ -403,18 +412,19 @@ export const DRUGS_GROUP_1: DrugItem[] = [
       const imMax = Number(Math.min(w * 5.0, maxImCap).toFixed(1));
       const isMaxEv = w * 1.5 >= maxEvCap;
       const isMaxIm = w * 5.0 >= maxImCap;
-      // Fiala 50 mg/mL (10 mg/mL dopo diluizione)
-      const evVolConc = (evMin / 50).toFixed(2);
+      // Fiala 50 mg/mL pura vs 10 mg/mL dopo diluizione
+      const evVolConcMin = (evMin / 50).toFixed(2);
+      const evVolConcMax = (evMax / 50).toFixed(2);
 
       return [
         {
           label: 'EV bolo lento (in 2 minuti)',
           route: 'EV',
           rawFormula: `1-1,5 mg/kg in bolo lento (2 min), max ${maxEvCap} mg; rip. 0,5 mg/kg al bisogno`,
-          calculatedValue: `${evMin} - ${evMax} mg`,
+          calculatedValue: evMin === evMax ? `${evMax} mg` : `${evMin} - ${evMax} mg`,
           unit: 'mg',
           numericDose: evMin,
-          volumeInfo: `Se diluito a 10 mg/mL con SF: somministrare ${(evMin/10).toFixed(1)} - ${(evMax/10).toFixed(1)} mL (da fiala 50 mg/mL: ${evVolConc} mL)`,
+          volumeInfo: `Se diluito a 10 mg/mL con SF: somministrare ${(evMin/10).toFixed(1)} - ${(evMax/10).toFixed(1)} mL (da fiala 50 mg/mL pura: ${evVolConcMin} - ${evVolConcMax} mL)`,
           maxDoseCap: `Max ${maxEvCap} mg bolo iniziale (${w < 40 ? 'bambino' : 'adolescente'})`,
           isMaxDoseReached: isMaxEv,
           frequencyOrDuration: 'Inizio azione in 1 min, durata 10-15 min; ripetibile a 0,5 mg/kg'
@@ -423,7 +433,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
           label: 'IM (se accesso venoso assente)',
           route: 'IM',
           rawFormula: `4-5 mg/kg/dose (max ${maxImCap} mg)`,
-          calculatedValue: `${imMin} - ${imMax} mg`,
+          calculatedValue: imMin === imMax ? `${imMax} mg` : `${imMin} - ${imMax} mg`,
           unit: 'mg',
           numericDose: imMin,
           volumeInfo: `Fiala da 50 mg/mL pura: ${(imMin / 50).toFixed(1)} - ${(imMax / 50).toFixed(1)} mL IM`,
@@ -678,16 +688,21 @@ export const DRUGS_GROUP_1: DrugItem[] = [
           calculatedValue: `${croupSevero} mg`,
           unit: 'mg',
           numericDose: croupSevero,
+          volumeInfo: `Gocce Soldesam 2 mg/mL: ${(croupSevero / 2).toFixed(1)} mL | Fiale 4 mg/mL: ${(croupSevero / 4).toFixed(2)} mL`,
           maxDoseCap: 'Max 16 mg',
+          isMaxDoseReached: w * 0.6 >= 16,
           frequencyOrDuration: 'Dose singola'
         },
         {
           label: 'Crisi asmatica (alternativa a prednisone)',
           route: 'OS / EV',
           rawFormula: '0,15-0,3 mg/kg/die (max 10-16 mg/die) per 1-2 giorni',
-          calculatedValue: `${asmaMin} - ${asmaMax} mg/die`,
+          calculatedValue: asmaMin === asmaMax ? `${asmaMax} mg/die` : `${asmaMin} - ${asmaMax} mg/die`,
           unit: 'mg',
           numericDose: asmaMax,
+          volumeInfo: `Gocce Soldesam 2 mg/mL: ${(asmaMin / 2).toFixed(1)} - ${(asmaMax / 2).toFixed(1)} mL | Fiale 4 mg/mL: ${(asmaMin / 4).toFixed(2)} - ${(asmaMax / 4).toFixed(2)} mL`,
+          maxDoseCap: 'Max 10-16 mg/die',
+          isMaxDoseReached: w * 0.3 >= 16,
           frequencyOrDuration: 'Per 1-2 giorni in monosomministrazione'
         }
       ];
@@ -855,20 +870,22 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     ],
     calculateDoses: (w: number) => {
       const maxSingle = w < 20 ? 2.5 : w < 40 ? 5 : 10;
-      const dose = Math.min(Number((w * 0.2).toFixed(1)), maxSingle);
-      const isMax = w * 0.2 >= maxSingle;
+      const minDose = Math.min(Number((w * 0.1).toFixed(1)), maxSingle);
+      const maxDose = Math.min(Number((w * 0.25).toFixed(1)), maxSingle);
+      const isMax = w * 0.25 >= maxSingle;
       // Fiala 10 mg/mL
-      const vol = (dose / 10).toFixed(2);
+      const volMin = (minDose / 10).toFixed(2);
+      const volMax = (maxDose / 10).toFixed(2);
 
       return [
         {
           label: 'EV lenta o IM',
           route: 'EV lenta / IM / OS',
           rawFormula: `0,1-0,25 mg/kg/dose lenta (max singola ${maxSingle} mg; max 20-40 mg/die)`,
-          calculatedValue: `${dose} mg`,
+          calculatedValue: minDose === maxDose ? `${maxDose} mg` : `${minDose} - ${maxDose} mg`,
           unit: 'mg',
-          numericDose: dose,
-          volumeInfo: `Fiala da 10 mg/1 mL: aspirare ${vol} mL (diluire in SF per EV lenta in 5 min)`,
+          numericDose: maxDose,
+          volumeInfo: `Fiala da 10 mg/1 mL: aspirare ${volMin} - ${volMax} mL (diluire in SF per EV lenta in 5 min)`,
           maxDoseCap: `Max ${maxSingle} mg per dose (${w < 20 ? '<20 kg' : w < 40 ? '20-40 kg' : 'adolescente/adulto'})`,
           isMaxDoseReached: isMax,
           frequencyOrDuration: 'Somministrare lentamente in 3-5 minuti'
@@ -883,7 +900,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'anafilassi',
     sectionNum: 5,
     sectionTitle: 'Anafilassi e Reazioni Allergiche Severe',
-    summaryDose: '4 mg/kg/dose EV/IM (max singola 100 mg bambino / 200 mg adolescente)',
+    summaryDose: '2-4 mg/kg/dose EV/IM (max singola 100 mg bambino / 200 mg adolescente)',
     routes: ['EV', 'IM'],
     indications: [
       'Anafilassi (farmaco di 2ª linea opzionale: non raccomandato di routine da EAACI 2021; utile se concomitante asma o edema refrattario)',
@@ -898,17 +915,18 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     ],
     calculateDoses: (w: number) => {
       const maxCap = w < 25 ? 100 : 200;
-      const dose = Math.min(Math.round(w * 4), maxCap);
+      const minDose = Math.min(Math.round(w * 2), maxCap);
+      const maxDose = Math.min(Math.round(w * 4), maxCap);
       const isMax = w * 4 >= maxCap;
 
       return [
         {
           label: 'Endovenoso / Intramuscolare',
           route: 'EV / IM',
-          rawFormula: `4 mg/kg/dose (max ${maxCap} mg)`,
-          calculatedValue: `${dose} mg`,
+          rawFormula: `2-4 mg/kg/dose (max ${maxCap} mg)`,
+          calculatedValue: minDose === maxDose ? `${maxDose} mg` : `${minDose} - ${maxDose} mg`,
           unit: 'mg',
-          numericDose: dose,
+          numericDose: maxDose,
           volumeInfo: `Flacone 100 mg o 500 mg ricostituito con solvente`,
           maxDoseCap: `Max ${maxCap} mg per dose (${w < 25 ? 'bambino <25 kg' : 'adolescente/adulto'}) | Max die: ${maxCap * 4} mg/die`,
           isMaxDoseReached: isMax,
@@ -1023,7 +1041,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'convulsioni',
     sectionNum: 6,
     sectionTitle: 'Crisi Convulsive e Stato di Male Epilettico',
-    summaryDose: 'Buccale/IN: 0,3 mg/kg (max 10 mg) | EV: 0,1-0,2 mg/kg (max 5-10 mg) | IM: 0,2 mg/kg (max 10 mg)',
+    summaryDose: 'Buccale/IN: 0,2-0,3 mg/kg (max 10 mg) | EV: 0,1-0,2 mg/kg (max 5-10 mg) | IM: 0,15-0,2 mg/kg (max 10 mg)',
     routes: ['Buccale', 'IN', 'EV', 'IM'],
     indications: [
       'Stato di male epilettico - 1ª linea.',
@@ -1039,10 +1057,12 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     highRisk: true,
     priorityEmergency: true,
     calculateDoses: (w: number) => {
-      const buccaleDose = Math.min(Number((w * 0.3).toFixed(1)), 10);
+      const minBuc = Math.min(Number((w * 0.2).toFixed(1)), 10);
+      const maxBuc = Math.min(Number((w * 0.3).toFixed(1)), 10);
       const evMin = Number((w * 0.1).toFixed(1));
       const evMax = Math.min(Number((w * 0.2).toFixed(1)), 10);
-      const imDose = Math.min(Number((w * 0.2).toFixed(1)), 10);
+      const minIm = Math.min(Number((w * 0.15).toFixed(1)), 10);
+      const maxIm = Math.min(Number((w * 0.2).toFixed(1)), 10);
 
       // Siringhe preriempite Buccolam standard: 2,5 mg (3m-1a), 5 mg (1-5a), 7,5 mg (5-10a), 10 mg (>10a)
       let buccolamForm = '';
@@ -1055,11 +1075,11 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Buccale (Buccolam) o Intranasale (IN con MAD)',
           route: 'Buccale / IN',
-          rawFormula: '0,3 mg/kg (max 10 mg)',
-          calculatedValue: `${buccaleDose} mg`,
+          rawFormula: '0,2-0,3 mg/kg (max 10 mg)',
+          calculatedValue: minBuc === maxBuc ? `${maxBuc} mg` : `${minBuc} - ${maxBuc} mg`,
           unit: 'mg',
-          numericDose: buccaleDose,
-          volumeInfo: `Con Buccolam siringa preriempite: ${buccolamForm} | Con fiala 5 mg/mL IN con MAD: ${(buccaleDose/5).toFixed(2)} mL`,
+          numericDose: maxBuc,
+          volumeInfo: `Con Buccolam siringa preriempite: ${buccolamForm} | Con fiala 5 mg/mL IN con MAD: ${(minBuc/5).toFixed(2)} - ${(maxBuc/5).toFixed(2)} mL`,
           maxDoseCap: 'Max 10 mg',
           isMaxDoseReached: w * 0.3 >= 10,
           frequencyOrDuration: 'Singola dose piena. Max 2 dosi totali di BDZ prima della 2ª linea'
@@ -1068,7 +1088,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
           label: 'Endovenoso lento (se via venosa già presente)',
           route: 'EV',
           rawFormula: '0,1-0,2 mg/kg lento (max 5-10 mg)',
-          calculatedValue: `${evMin} - ${evMax} mg`,
+          calculatedValue: evMin === evMax ? `${evMax} mg` : `${evMin} - ${evMax} mg`,
           unit: 'mg',
           numericDose: evMax,
           volumeInfo: `Con fiala 5 mg/mL: ${(evMin/5).toFixed(2)} - ${(evMax/5).toFixed(2)} mL`,
@@ -1079,12 +1099,13 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Intramuscolare (IM)',
           route: 'IM',
-          rawFormula: '0,2 mg/kg (max 10 mg)',
-          calculatedValue: `${imDose} mg`,
+          rawFormula: '0,15-0,2 mg/kg (max 10 mg)',
+          calculatedValue: minIm === maxIm ? `${maxIm} mg` : `${minIm} - ${maxIm} mg`,
           unit: 'mg',
-          numericDose: imDose,
-          volumeInfo: `Fiala 5 mg/mL: ${(imDose/5).toFixed(2)} mL IM profonda`,
+          numericDose: maxIm,
+          volumeInfo: `Fiala 5 mg/mL: ${(minIm/5).toFixed(2)} - ${(maxIm/5).toFixed(2)} mL IM profonda`,
           maxDoseCap: 'Max 10 mg',
+          isMaxDoseReached: w * 0.2 >= 10,
           frequencyOrDuration: 'Molto rapido ed efficace se mancato accesso EV'
         }
       ];
@@ -1097,7 +1118,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'convulsioni',
     sectionNum: 6,
     sectionTitle: 'Crisi Convulsive e Stato di Male Epilettico',
-    summaryDose: 'EV: 40-60 mg/kg (max 4,5 g) infusi in 15 minuti',
+    summaryDose: 'EV: 40-60 mg/kg (max 3.000 mg bambino / 4.500 mg adolescente) infusi in 15 minuti',
     routes: ['EV'],
     indications: [
       'Stato di male epilettico - 2ª linea (dopo 20 minuti dall\'esordio o dopo fallimento di 2 dosi di benzodiazepina).',
@@ -1110,9 +1131,10 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     ],
     priorityEmergency: true,
     calculateDoses: (w: number) => {
-      const dose40 = Math.min(Math.round(w * 40), 4500);
-      const dose60 = Math.min(Math.round(w * 60), 4500);
-      const isMax = w * 60 >= 4500;
+      const maxCap = w < 50 ? 3000 : 4500;
+      const dose40 = Math.min(Math.round(w * 40), maxCap);
+      const dose60 = Math.min(Math.round(w * 60), maxCap);
+      const isMax = w * 60 >= maxCap;
       // Fiala 500 mg/5 mL (100 mg/mL)
       const vol40 = (dose40 / 100).toFixed(1);
       const vol60 = (dose60 / 100).toFixed(1);
@@ -1121,12 +1143,12 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: '2ª Linea Stato Epilettico: Infusione EV in 15 min',
           route: 'EV',
-          rawFormula: '40-60 mg/kg (max 4.500 mg = 4,5 g) in 15 minuti',
-          calculatedValue: `${dose40} - ${dose60} mg`,
+          rawFormula: `40-60 mg/kg (max ${maxCap} mg = ${maxCap/1000} g) in 15 minuti`,
+          calculatedValue: dose40 === dose60 ? `${dose60} mg` : `${dose40} - ${dose60} mg`,
           unit: 'mg',
           numericDose: dose60,
           volumeInfo: `Concentrato 100 mg/mL: aspirare ${vol40} - ${vol60} mL e diluire in 50-100 mL di SF per infusione in 15 minuti`,
-          maxDoseCap: 'Max 4.500 mg (4,5 g)',
+          maxDoseCap: `Max ${maxCap} mg (${w < 50 ? 'pediatrico' : 'adolescente/adulto'})`,
           isMaxDoseReached: isMax,
           frequencyOrDuration: 'Infusione endovenosa in 15 minuti'
         }
@@ -1140,7 +1162,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'convulsioni',
     sectionNum: 6,
     sectionTitle: 'Crisi Convulsive e Stato di Male Epilettico',
-    summaryDose: 'Fosfenitoina: 20 mg PE/kg EV/IM (max 1500 mg PE, vel max 3 mg PE/kg/min o 150 mg PE/min)',
+    summaryDose: 'Fosfenitoina: 15-20 mg PE/kg EV/IM (max 1500 mg PE, vel max 3 mg PE/kg/min o 150 mg PE/min)',
     routes: ['EV', 'IM'],
     indications: ['Stato di male epilettico - 2ª linea (dopo fallimento di 2 dosi di benzodiazepina)'],
     contraindications: [
@@ -1156,7 +1178,8 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     ],
     highRisk: true,
     calculateDoses: (w: number) => {
-      const dosePE = Math.min(Math.round(w * 20), 1500);
+      const minPE = Math.min(Math.round(w * 15), 1500);
+      const maxPE = Math.min(Math.round(w * 20), 1500);
       const isMax = w * 20 >= 1500;
       const maxRate = Math.min(Number((w * 3).toFixed(1)), 150);
 
@@ -1164,11 +1187,11 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Fosfenitoina (dose da carico PE)',
           route: 'EV / IM',
-          rawFormula: '20 mg PE/kg (max 1.500 mg PE), velocità max 3 mg PE/kg/min (non oltre 150 mg PE/min)',
-          calculatedValue: `${dosePE} mg PE`,
+          rawFormula: '15-20 mg PE/kg (max 1.500 mg PE), velocità max 3 mg PE/kg/min (non oltre 150 mg PE/min)',
+          calculatedValue: minPE === maxPE ? `${maxPE} mg PE` : `${minPE} - ${maxPE} mg PE`,
           unit: 'mg PE',
-          numericDose: dosePE,
-          volumeInfo: `Fiala da 75 mg/mL PE: aspirare ${(dosePE / 75).toFixed(1)} mL (diluire in SF o Glucosata 5%)`,
+          numericDose: maxPE,
+          volumeInfo: `Fiala da 75 mg/mL PE: aspirare ${(minPE / 75).toFixed(1)} - ${(maxPE / 75).toFixed(1)} mL (diluire in SF o Glucosata 5%)`,
           maxDoseCap: 'Max 1.500 mg PE | Velocità max: ' + maxRate + ' mg PE/min',
           isMaxDoseReached: isMax,
           frequencyOrDuration: 'Infusione in circa 10-15 minuti sotto monitoraggio ECG e PA'
@@ -1183,7 +1206,7 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     category: 'convulsioni',
     sectionNum: 6,
     sectionTitle: 'Crisi Convulsive e Stato di Male Epilettico',
-    summaryDose: 'EV: 40 mg/kg (max 3 g) infusi in 5-10 minuti',
+    summaryDose: 'EV: 20-40 mg/kg (max 3 g) infusi in 5-10 minuti',
     routes: ['EV'],
     indications: ['Stato di male epilettico - 2ª linea alternativa a Levetiracetam/Fenitoina'],
     contraindications: [
@@ -1198,20 +1221,22 @@ export const DRUGS_GROUP_1: DrugItem[] = [
       'Possibile iperammoniemia, trombocitopenia.'
     ],
     calculateDoses: (w: number) => {
-      const dose = Math.min(Math.round(w * 40), 3000);
+      const minValp = Math.min(Math.round(w * 20), 3000);
+      const maxValp = Math.min(Math.round(w * 40), 3000);
       const isMax = w * 40 >= 3000;
       // Fiala 400 mg con 4 mL solvente (100 mg/mL)
-      const vol = (dose / 100).toFixed(1);
+      const volMin = (minValp / 100).toFixed(1);
+      const volMax = (maxValp / 100).toFixed(1);
 
       return [
         {
           label: 'Infusione EV rapida (in 5-10 minuti)',
           route: 'EV',
-          rawFormula: '40 mg/kg (max 3.000 mg = 3 g) in 5-10 minuti',
-          calculatedValue: `${dose} mg`,
+          rawFormula: '20-40 mg/kg (max 3.000 mg = 3 g) in 5-10 minuti',
+          calculatedValue: minValp === maxValp ? `${maxValp} mg` : `${minValp} - ${maxValp} mg`,
           unit: 'mg',
-          numericDose: dose,
-          volumeInfo: `Soluzione 100 mg/mL: aspirare ${vol} mL (diluire in SF o Glucosata)`,
+          numericDose: maxValp,
+          volumeInfo: `Soluzione 100 mg/mL: aspirare ${volMin} - ${volMax} mL (diluire in SF o Glucosata)`,
           maxDoseCap: 'Max 3.000 mg (3 g)',
           isMaxDoseReached: isMax,
           frequencyOrDuration: 'Bolo endovenoso in 5-10 minuti'

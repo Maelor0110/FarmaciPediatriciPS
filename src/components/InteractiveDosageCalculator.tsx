@@ -138,21 +138,21 @@ Note: ${dose.alertNote || selectedDrug.adverseEffectsAndNotes[0] || 'N/A'}`;
     <div className="space-y-6">
       
       {/* Top Bento Header Banner */}
-      <div className="bg-slate-900 text-white rounded-3xl p-5 sm:p-7 shadow-md border border-slate-800 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
-        <div className="flex items-start space-x-3.5">
-          <div className="p-3.5 bg-blue-500/20 border border-blue-500/30 rounded-2xl shrink-0 text-blue-400">
-            <Calculator className="w-8 h-8" />
+      <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 lg:p-10 shadow-md border border-slate-800 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div className="flex items-start space-x-4 md:space-x-5">
+          <div className="p-4 md:p-5 bg-blue-500/20 border border-blue-500/30 rounded-2xl md:rounded-3xl shrink-0 text-blue-400">
+            <Calculator className="w-9 h-9 md:w-11 md:h-11" />
           </div>
-          <div className="space-y-1">
-            <div className="flex items-center flex-wrap gap-2">
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+          <div className="space-y-1.5 md:space-y-2">
+            <div className="flex items-center flex-wrap gap-2.5">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
                 Calcolatore Interattivo di Dosaggio Pediatrico
               </h2>
-              <span className="text-[11px] bg-blue-600 text-white font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs">
+              <span className="text-xs md:text-sm bg-blue-600 text-white font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-xs">
                 Linee Guida PS
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed font-medium">
+            <p className="text-sm sm:text-base lg:text-lg text-slate-300 max-w-4xl leading-relaxed font-medium">
               Inserisci il peso corporeo in kg e seleziona un principio attivo per calcolare istantaneamente 
               il dosaggio esatto (mg/kg o mcg/kg), la <strong>dose massima per somministrazione</strong>, 
               le unità di preparazione (mg/mL) e i volumi in siringa.
@@ -161,20 +161,20 @@ Note: ${dose.alertNote || selectedDrug.adverseEffectsAndNotes[0] || 'N/A'}`;
         </div>
 
         {/* Active Patient Bento Capsule */}
-        <div className="bg-slate-800/90 border border-slate-700/80 rounded-2xl px-5 py-3.5 shrink-0 flex items-center justify-between lg:flex-col lg:items-end gap-2 shadow-inner">
-          <span className="text-[11px] text-slate-400 uppercase font-black tracking-wider">
+        <div className="bg-slate-800/90 border border-slate-700/80 rounded-2xl md:rounded-3xl px-6 py-4 md:px-7 md:py-5 shrink-0 flex items-center justify-between lg:flex-col lg:items-end gap-2.5 shadow-inner">
+          <span className="text-xs md:text-sm text-slate-400 uppercase font-black tracking-wider">
             Peso Attivo Paziente
           </span>
-          <div className="flex items-baseline space-x-1.5">
-            <span className="text-3xl font-black text-blue-400 font-mono tracking-tight">
+          <div className="flex items-baseline space-x-2">
+            <span className="text-4xl md:text-5xl lg:text-6xl font-black text-blue-400 font-mono tracking-tight">
               {patientWeight}
             </span>
-            <span className="text-sm font-extrabold text-slate-300">kg</span>
+            <span className="text-base md:text-xl font-black text-slate-300">kg</span>
           </div>
           {currentBroselow && (
-            <div className="flex items-center space-x-1.5 text-[10px] font-bold text-slate-300">
+            <div className="flex items-center space-x-2 text-xs md:text-sm font-bold text-slate-300">
               <span
-                className="w-2 h-2 rounded-full"
+                className="w-3 h-3 rounded-full shadow-xs"
                 style={{ backgroundColor: currentBroselow.colorHex }}
               />
               <span>Fascia {currentBroselow.color} ({currentBroselow.typicalAge})</span>

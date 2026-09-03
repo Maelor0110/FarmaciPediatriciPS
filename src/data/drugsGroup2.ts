@@ -27,37 +27,53 @@ export const DRUGS_GROUP_2: DrugItem[] = [
       'Somministrare ai pasti per migliorare la tollerabilità gastrica e ridurre diarrea/nausea.'
     ],
     calculateDoses: (w: number) => {
-      const doseStdTotal = Math.min(Math.round(w * 50), 3000);
-      const doseHighTotal = Math.min(Math.round(w * 80), 3000);
-      const doseStdSingleTid = Math.round(doseStdTotal / 3);
-      const doseHighSingleBid = Math.round(doseHighTotal / 2);
-      const isMax = w * 80 >= 3000;
+      // Dose elevata: 80-90 mg/kg/die
+      const highTotMin = Math.min(Math.round(w * 80), 3000);
+      const highTotMax = Math.min(Math.round(w * 90), 3000);
+      const highBidMin = Math.round(highTotMin / 2);
+      const highBidMax = Math.round(highTotMax / 2);
+      const isHighMax = w * 90 >= 3000;
+
+      // Dose standard: 40-50 mg/kg/die
+      const stdTotMin = Math.min(Math.round(w * 40), 2000);
+      const stdTotMax = Math.min(Math.round(w * 50), 2000);
+      const stdTidMin = Math.round(stdTotMin / 3);
+      const stdTidMax = Math.round(stdTotMax / 3);
+      const isStdMax = w * 50 >= 2000;
 
       // Sospensione pediatrica classica 400 mg + 57 mg per 5 mL (= 80 mg/mL di amoxicillina)
-      const mlHighBid = (doseHighSingleBid / 80).toFixed(1);
+      const mlHighBidMin = (highBidMin / 80).toFixed(1);
+      const mlHighBidMax = (highBidMax / 80).toFixed(1);
+      const mlStdTidMin = (stdTidMin / 80).toFixed(1);
+      const mlStdTidMax = (stdTidMax / 80).toFixed(1);
 
       return [
         {
-          label: 'Dose Elevata (80 mg/kg/die - OMA / Polmonite)',
+          label: 'Dose Elevata (80-90 mg/kg/die - OMA / Polmonite)',
           route: 'OS',
           rawFormula: '80-90 mg/kg/die suddiviso in 2 somministrazioni (ogni 12h) o 3 somministrazioni (max 3 g/die)',
-          calculatedValue: `${doseHighSingleBid} mg ogni 12h (totale ${doseHighTotal} mg/die)`,
+          calculatedValue: highBidMin === highBidMax 
+            ? `${highBidMax} mg ogni 12h (totale ${highTotMax} mg/die)` 
+            : `${highBidMin} - ${highBidMax} mg ogni 12h (totale ${highTotMin} - ${highTotMax} mg/die)`,
           unit: 'mg',
-          numericDose: doseHighSingleBid,
-          volumeInfo: `Sospensione 400 mg/5 mL (80 mg/mL): ~${mlHighBid} mL ogni 12h`,
+          numericDose: highBidMax,
+          volumeInfo: `Sospensione 400 mg/5 mL (80 mg/mL): ~${mlHighBidMin} - ${mlHighBidMax} mL ogni 12h`,
           maxDoseCap: 'Max 3.000 mg (3 g) al giorno',
-          isMaxDoseReached: isMax,
+          isMaxDoseReached: isHighMax,
           frequencyOrDuration: 'Ogni 12 ore per 8-10 giorni'
         },
         {
           label: 'Dose Standard (40-50 mg/kg/die)',
           route: 'OS',
           rawFormula: '40-50 mg/kg/die suddiviso ogni 8h (max 2 g/die)',
-          calculatedValue: `${doseStdSingleTid} mg ogni 8h (totale ${doseStdTotal} mg/die)`,
+          calculatedValue: stdTidMin === stdTidMax 
+            ? `${stdTidMax} mg ogni 8h (totale ${stdTotMax} mg/die)` 
+            : `${stdTidMin} - ${stdTidMax} mg ogni 8h (totale ${stdTotMin} - ${stdTotMax} mg/die)`,
           unit: 'mg',
-          numericDose: doseStdSingleTid,
-          volumeInfo: `Sospensione 400 mg/5 mL: ~${(doseStdSingleTid / 80).toFixed(1)} mL ogni 8h`,
+          numericDose: stdTidMax,
+          volumeInfo: `Sospensione 400 mg/5 mL: ~${mlStdTidMin} - ${mlStdTidMax} mL ogni 8h`,
           maxDoseCap: 'Max 2.000 mg/die',
+          isMaxDoseReached: isStdMax,
           frequencyOrDuration: 'Ogni 8 ore ai pasti'
         }
       ];
@@ -90,8 +106,10 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     ],
     priorityEmergency: true,
     calculateDoses: (w: number) => {
-      const doseStd = Math.min(Math.round(w * 50), 2000);
-      const doseMeningite = Math.min(Math.round(w * 100), 4000);
+      const doseStdMin = Math.min(Math.round(w * 50), 2000);
+      const doseStdMax = Math.min(Math.round(w * 80), 4000);
+      const doseMeningiteMin = Math.min(Math.round(w * 80), 4000);
+      const doseMeningiteMax = Math.min(Math.round(w * 100), 4000);
       const isMaxMeningite = w * 100 >= 4000;
 
       return [
@@ -99,20 +117,21 @@ export const DRUGS_GROUP_2: DrugItem[] = [
           label: 'Infezioni severe / Sepsi (50-80 mg/kg/die)',
           route: 'EV / IM',
           rawFormula: '50-80 mg/kg/die in singola somministrazione (max 2-4 g/die)',
-          calculatedValue: `${doseStd} - ${Math.min(Math.round(w * 80), 4000)} mg/die`,
+          calculatedValue: doseStdMin === doseStdMax ? `${doseStdMax} mg/die` : `${doseStdMin} - ${doseStdMax} mg/die`,
           unit: 'mg',
-          numericDose: doseStd,
+          numericDose: doseStdMax,
           volumeInfo: `Flaconi da 1 g o 2 g ricostituiti in SF per infusione EV in 30 min (per IM ricostituire con lidocaina 1%)`,
           maxDoseCap: 'Max 2.000 - 4.000 mg al giorno',
+          isMaxDoseReached: w * 80 >= 4000,
           frequencyOrDuration: 'In monosomministrazione giornaliera (ogni 24h)'
         },
         {
-          label: 'Meningite batterica sospetta / documentata (100 mg/kg/die)',
+          label: 'Meningite batterica sospetta / documentata (80-100 mg/kg/die)',
           route: 'EV in 30 minuti',
-          rawFormula: '100 mg/kg/die in singola dose o diviso ogni 12h (max 4 g/die)',
-          calculatedValue: `${doseMeningite} mg/die`,
+          rawFormula: '80-100 mg/kg/die in singola dose o diviso ogni 12h (max 4 g/die)',
+          calculatedValue: doseMeningiteMin === doseMeningiteMax ? `${doseMeningiteMax} mg/die` : `${doseMeningiteMin} - ${doseMeningiteMax} mg/die`,
           unit: 'mg',
-          numericDose: doseMeningite,
+          numericDose: doseMeningiteMax,
           maxDoseCap: 'Max 4.000 mg (4 g) al giorno',
           isMaxDoseReached: isMaxMeningite,
           frequencyOrDuration: 'Ogni 24h o suddiviso ogni 12h in infusione lenta'
@@ -139,19 +158,23 @@ export const DRUGS_GROUP_2: DrugItem[] = [
       'Suddividere ogni 6-8 ore (emivita più breve rispetto a ceftriaxone).'
     ],
     calculateDoses: (w: number) => {
-      const totalDie = Math.min(Math.round(w * 150), 8000);
-      const singleTid = Math.round(totalDie / 3);
-      const isMax = w * 150 >= 8000;
+      const totMin = Math.min(Math.round(w * 100), 8000);
+      const totMax = Math.min(Math.round(w * 200), 12000);
+      const singleTidMin = Math.round(totMin / 3);
+      const singleTidMax = Math.round(totMax / 3);
+      const isMax = w * 200 >= 12000;
 
       return [
         {
           label: 'Sepsi / Meningite neonato e lattante',
           route: 'EV / IM',
           rawFormula: '100-200 mg/kg/die suddiviso ogni 6-8 ore (max 8-12 g/die)',
-          calculatedValue: `${singleTid} mg ogni 8h (totale ${totalDie} mg/die)`,
+          calculatedValue: singleTidMin === singleTidMax 
+            ? `${singleTidMax} mg ogni 8h (totale ${totMax} mg/die)` 
+            : `${singleTidMin} - ${singleTidMax} mg ogni 8h (totale ${totMin} - ${totMax} mg/die)`,
           unit: 'mg',
-          numericDose: singleTid,
-          volumeInfo: 'Flacone 1 g ricostituito',
+          numericDose: singleTidMax,
+          volumeInfo: 'Flacone 1 g ricostituito per infusione EV lenta in 20-30 min',
           maxDoseCap: 'Max 8-12 g/die',
           isMaxDoseReached: isMax,
           frequencyOrDuration: 'Ogni 6-8 ore in infusione EV lenta (20-30 min)'
@@ -178,21 +201,29 @@ export const DRUGS_GROUP_2: DrugItem[] = [
       'Nel sospetto di meningite neonatale impiegare dosaggi massimali (fino a 300-400 mg/kg/die).'
     ],
     calculateDoses: (w: number) => {
-      const stdTotal = Math.min(Math.round(w * 150), 8000);
-      const meningiteTotal = Math.min(Math.round(w * 300), 12000);
-      const stdSingle = Math.round(stdTotal / 4);
-      const menSingle = Math.round(meningiteTotal / 4);
-      const isMaxStd = w * 150 >= 8000;
-      const isMaxMen = w * 300 >= 12000;
+      const sepsiTotMin = Math.min(Math.round(w * 100), 8000);
+      const sepsiTotMax = Math.min(Math.round(w * 200), 8000);
+      const sepsiSingleMin = Math.round(sepsiTotMin / 4);
+      const sepsiSingleMax = Math.round(sepsiTotMax / 4);
+
+      const menTotMin = Math.min(Math.round(w * 300), 12000);
+      const menTotMax = Math.min(Math.round(w * 400), 12000);
+      const menSingleMin = Math.round(menTotMin / 4);
+      const menSingleMax = Math.round(menTotMax / 4);
+
+      const isMaxStd = w * 200 >= 8000;
+      const isMaxMen = w * 400 >= 12000;
 
       return [
         {
           label: 'Sepsi neonatale (con Gentamicina)',
           route: 'EV',
           rawFormula: '100-200 mg/kg/die suddiviso ogni 6 ore (max 8 g/die)',
-          calculatedValue: `${stdSingle} mg ogni 6h (totale ${stdTotal} mg/die)`,
+          calculatedValue: sepsiSingleMin === sepsiSingleMax 
+            ? `${sepsiSingleMax} mg ogni 6h (totale ${sepsiTotMax} mg/die)` 
+            : `${sepsiSingleMin} - ${sepsiSingleMax} mg ogni 6h (totale ${sepsiTotMin} - ${sepsiTotMax} mg/die)`,
           unit: 'mg',
-          numericDose: stdSingle,
+          numericDose: sepsiSingleMax,
           maxDoseCap: 'Max 8.000 mg (8 g) al giorno',
           isMaxDoseReached: isMaxStd,
           frequencyOrDuration: 'Ogni 6 ore EV lenta (15-30 min)'
@@ -201,9 +232,11 @@ export const DRUGS_GROUP_2: DrugItem[] = [
           label: 'Meningite batterica neonatale',
           route: 'EV',
           rawFormula: '300-400 mg/kg/die suddiviso ogni 6 ore (max 12 g/die)',
-          calculatedValue: `${menSingle} mg ogni 6h (totale ${meningiteTotal} mg/die)`,
+          calculatedValue: menSingleMin === menSingleMax 
+            ? `${menSingleMax} mg ogni 6h (totale ${menTotMax} mg/die)` 
+            : `${menSingleMin} - ${menSingleMax} mg ogni 6h (totale ${menTotMin} - ${menTotMax} mg/die)`,
           unit: 'mg',
-          numericDose: menSingle,
+          numericDose: menSingleMax,
           maxDoseCap: 'Max 12.000 mg (12 g) al giorno',
           isMaxDoseReached: isMaxMen,
           frequencyOrDuration: 'Ogni 6 ore'
@@ -376,12 +409,15 @@ export const DRUGS_GROUP_2: DrugItem[] = [
           frequencyOrDuration: 'Singola dose; ripetibile solo dopo 6-8h se necessario'
         },
         {
-          label: 'Dosaggio esatto su kg corporeo (0,15 mg/kg)',
+          label: 'Dosaggio esatto su kg corporeo (0,1-0,15 mg/kg)',
           route: 'OS / EV',
-          rawFormula: '0,15 mg/kg/dose (max 4-8 mg)',
-          calculatedValue: `${calcExact} mg`,
+          rawFormula: '0,1-0,15 mg/kg/dose (max 4-8 mg)',
+          calculatedValue: `${Math.min(Number((w * 0.1).toFixed(2)), 4.0)} - ${calcExact} mg`,
           unit: 'mg',
           numericDose: calcExact,
+          volumeInfo: `Fiala EV (2 mg/mL): ${(Math.min(Number((w * 0.1).toFixed(2)), 4.0)/2).toFixed(1)} - ${(calcExact/2).toFixed(1)} mL`,
+          maxDoseCap: 'Max 4-8 mg per dose',
+          isMaxDoseReached: w * 0.15 >= 8,
           frequencyOrDuration: 'Ripetibile dopo 6-8 ore'
         }
       ];
@@ -417,17 +453,18 @@ export const DRUGS_GROUP_2: DrugItem[] = [
       const maxDose = Math.min(Number((w * 0.5).toFixed(1)), 20);
       const isMax = w * 0.5 >= 20;
       // Fiala 20 mg/1 mL
-      const vol = (maxDose / 20).toFixed(2);
+      const volMin = (minDose / 20).toFixed(2);
+      const volMax = (maxDose / 20).toFixed(2);
 
       return [
         {
           label: 'Endovenoso lento o Intramuscolare',
           route: 'EV lenta / IM / OS',
           rawFormula: '0,3-0,5 mg/kg/dose (max 20 mg)',
-          calculatedValue: `${minDose} - ${maxDose} mg`,
+          calculatedValue: minDose === maxDose ? `${maxDose} mg` : `${minDose} - ${maxDose} mg`,
           unit: 'mg',
           numericDose: maxDose,
-          volumeInfo: `Fiala da 20 mg/1 mL: aspirare ~${vol} mL (diluire per infusione EV lenta in 5-10 min)`,
+          volumeInfo: `Fiala da 20 mg/1 mL: aspirare ~${volMin} - ${volMax} mL (diluire per infusione EV lenta in 5-10 min)`,
           maxDoseCap: 'Max 20 mg per dose',
           isMaxDoseReached: isMax,
           frequencyOrDuration: 'Ripetibile ogni 6-8 ore al bisogno'
@@ -973,8 +1010,8 @@ export const DRUGS_GROUP_2: DrugItem[] = [
       // Mannitolo 20% = 20 g / 100 mL = 0,2 g/mL -> mL = g * 5
       const mlMin = (gMin * 5).toFixed(0);
       const mlMax = (gMax * 5).toFixed(0);
-      const hypertonicSalineMin = Math.min(Math.round(w * 5), 250);
-      const hypertonicSalineMax = Math.min(Math.round(w * 10), 500);
+      const hypertonicSalineMin = Math.min(Number((w * 2.5).toFixed(0)), 250);
+      const hypertonicSalineMax = Math.min(Number((w * 5.0).toFixed(0)), 300);
 
       return [
         {
@@ -992,12 +1029,14 @@ export const DRUGS_GROUP_2: DrugItem[] = [
         {
           label: 'Alternativa: Soluzione Salina Ipertonica NaCl 3%',
           route: 'EV in 10-15 min',
-          rawFormula: '5-10 mL/kg di NaCl 3% in 10-15 minuti (max 250-500 mL)',
-          calculatedValue: `${hypertonicSalineMin} - ${hypertonicSalineMax} mL`,
+          rawFormula: '2,5-5 mL/kg di NaCl 3% in 10-15 minuti (max 250-300 mL)',
+          calculatedValue: hypertonicSalineMin === hypertonicSalineMax ? `${hypertonicSalineMax} mL` : `${hypertonicSalineMin} - ${hypertonicSalineMax} mL`,
           unit: 'mL',
           numericDose: hypertonicSalineMin,
-          maxDoseCap: 'Max 250-500 mL per bolo',
-          frequencyOrDuration: 'In 10-15 minuti in alternativa al mannitolo'
+          volumeInfo: `Infondere ${hypertonicSalineMin} - ${hypertonicSalineMax} mL di NaCl 3% in 10-15 minuti (preferibile accesso centrale o vena di grosso calibro)`,
+          maxDoseCap: 'Max 250-300 mL per bolo',
+          isMaxDoseReached: w * 5.0 >= 300,
+          frequencyOrDuration: 'In 10-15 minuti in alternativa al mannitolo (ISPAD 2022)'
         }
       ];
     }
