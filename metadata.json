@@ -1,0 +1,6 @@
+{
+  "name": "Prontuario Pediatrico PS",
+  "description": "Prontuario clinico e calcolatore rapido di dosaggi pediatrici per il Pronto Soccorso ed Emergenza-Urgenza.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
