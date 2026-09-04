@@ -23,27 +23,29 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="bg-slate-950 text-white border-b border-slate-800/80 transition-colors shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 md:h-28 lg:h-32">
+        
+        {/* Top Header Section (Responsive Stack on Mobile, Flex Row on Tablet & Desktop) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4 py-3 sm:py-4 lg:py-5">
           
           {/* Brand Identity & Title */}
-          <div className="flex items-center space-x-3.5 md:space-x-5">
-            <div className="w-12 h-12 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-teal-400 p-0.5 md:p-1 shadow-xl shadow-blue-500/20 flex items-center justify-center shrink-0">
-              <div className="w-full h-full bg-slate-950 rounded-[14px] md:rounded-[22px] flex items-center justify-center">
-                <Activity className="w-6 h-6 md:w-10 md:h-10 lg:w-11 lg:h-11 text-teal-400" />
+          <div className="flex items-center space-x-3 md:space-x-4 min-w-0">
+            <div className="w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-2xl md:rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-teal-400 p-0.5 md:p-1 shadow-xl shadow-blue-500/20 flex items-center justify-center shrink-0">
+              <div className="w-full h-full bg-slate-950 rounded-[13px] sm:rounded-[14px] md:rounded-[22px] flex items-center justify-center">
+                <Activity className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 lg:w-11 lg:h-11 text-teal-400" />
               </div>
             </div>
             
-            <div>
-              <h1 className="font-extrabold text-lg sm:text-2xl md:text-3xl lg:text-4xl tracking-tight text-white flex items-center gap-2 md:gap-3">
-                <span>Prontuario Rapido Pediatrico PS</span>
+            <div className="min-w-0 flex-1">
+              <h1 className="font-black text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl tracking-tight text-white leading-snug">
+                Prontuario Rapido Pediatrico PS
               </h1>
-              <div className="flex items-center flex-wrap gap-x-2 gap-y-1 mt-0.5 md:mt-1.5 text-xs sm:text-sm md:text-base lg:text-lg">
+              <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5 mt-0.5 sm:mt-1 text-xs sm:text-sm md:text-base">
                 <span className="text-teal-400 font-bold tracking-tight">
                   created by Dott. Maestri Lorenzo
                 </span>
                 <span className="hidden sm:inline text-slate-500">•</span>
                 <span className="hidden sm:inline text-slate-400 font-medium text-xs md:text-sm">
-                  Pronto Soccorso ed Emergenza Pediatrica
+                  Pronto Soccorso ed Emergenza
                 </span>
               </div>
             </div>
@@ -108,8 +110,8 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </nav>
 
-          {/* Right Action Tiles */}
-          <div className="flex items-center space-x-2.5 md:space-x-4">
+          {/* Action Tiles: Preferiti & Peso (Neatly aligned on mobile and desktop) */}
+          <div className="flex items-center justify-between sm:justify-end space-x-2.5 md:space-x-3 shrink-0">
             {/* Quick Favorites Filter Tile */}
             <button
               onClick={() => {
@@ -117,25 +119,25 @@ export const Header: React.FC<HeaderProps> = ({
                 setShowOnlyFavorites(!showOnlyFavorites);
               }}
               title="Mostra solo preferiti"
-              className={`h-11 md:h-14 lg:h-16 px-3.5 md:px-5 rounded-2xl text-xs md:text-sm lg:text-base font-black flex items-center space-x-2 transition-all border ${
+              className={`h-10 sm:h-12 lg:h-14 px-3 sm:px-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm lg:text-base font-black flex items-center space-x-2 transition-all border ${
                 showOnlyFavorites
                   ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-md shadow-amber-500/20'
                   : 'bg-slate-900/90 hover:bg-slate-850 text-slate-300 border-slate-800'
               }`}
             >
-              <Bookmark className={`w-4 h-4 md:w-5 md:h-5 ${showOnlyFavorites ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
-              <span className="hidden sm:inline">Preferiti</span>
+              <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${showOnlyFavorites ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
+              <span>Preferiti</span>
               {favoritesCount > 0 && (
-                <span className="bg-amber-400/20 text-amber-300 text-xs md:text-sm font-black px-2 py-0.5 rounded-lg border border-amber-400/40">
+                <span className="bg-amber-400/20 text-amber-300 text-xs sm:text-sm font-black px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-lg border border-amber-400/40">
                   {favoritesCount}
                 </span>
               )}
             </button>
 
             {/* Current Patient Weight Indicator */}
-            <div className="h-11 md:h-14 lg:h-16 bg-slate-900/90 border border-slate-800 rounded-2xl px-4 md:px-5 flex items-center space-x-2 md:space-x-2.5 shadow-inner">
-              <span className="text-[11px] md:text-xs text-slate-400 uppercase font-black tracking-wider">Peso:</span>
-              <span className="text-sm md:text-xl lg:text-2xl font-black text-blue-400 font-mono tracking-tight">{patientWeight} kg</span>
+            <div className="h-10 sm:h-12 lg:h-14 bg-slate-900/90 border border-slate-800 rounded-xl sm:rounded-2xl px-3 sm:px-4 flex items-center space-x-2 shadow-inner">
+              <span className="text-[11px] sm:text-xs text-slate-400 uppercase font-black tracking-wider">Peso:</span>
+              <span className="text-sm sm:text-base md:text-xl lg:text-2xl font-black text-blue-400 font-mono tracking-tight">{patientWeight} kg</span>
             </div>
           </div>
 
