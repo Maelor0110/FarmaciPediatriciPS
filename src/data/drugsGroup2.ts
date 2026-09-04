@@ -80,6 +80,135 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     }
   },
   {
+    id: 'amoxicillina',
+    name: 'Amoxicillina',
+    commercialNames: ['Zimox', 'Velamox', 'Amox', 'Amoxicillina generico'],
+    category: 'antibiotici',
+    sectionNum: 8,
+    sectionTitle: 'Antibiotici di Comune Impiego in Pronto Soccorso',
+    summaryDose: 'OS: 50 mg/kg/die (standard faringite) o 80-90 mg/kg/die (alto dosaggio OMA / polmonite) in 3 dosi (max 3 g/die)',
+    routes: ['OS'],
+    indications: [
+      'Otite Media Acuta (OMA) - 1ª linea raccomandata da linee guida SIP / AIEOP',
+      'Polmonite Acuta Comunitaria (CAP) non complicata nel bambino > 3 mesi',
+      'Faringotonsillite acuta da Streptococco pyogenes (SBEA) con test rapido/tampone positivo'
+    ],
+    contraindications: [
+      'Ipersensibilità nota a penicilline o ad altri antibiotici beta-lattamici (storia di anafilassi/angioedema)',
+      'Mononucleosi infettiva in atto (elevatissimo rischio di rash cutaneo maculo-papuloso non immuno-mediato)'
+    ],
+    adverseEffectsAndNotes: [
+      'Antibiotico per via orale di prima scelta assoluta in età pediatrica: preserva l\'acido clavulanico se non vi è indicazione.',
+      'Dosaggio per OMA severa e polmonite comunitaria: ALTO DOSAGGIO (80-90 mg/kg/die) suddiviso tassativamente ogni 8 ore per superare la resistenza di Streptococcus pneumoniae.',
+      'Faringite streptococcica: 50 mg/kg/die in 2-3 dosi per 10 giorni interi obbligatori (per prevenire la malattia reumatica acuta).',
+      'Sospensione pediatrica classica: 250 mg / 5 mL (= 50 mg/mL); conservare in frigorifero dopo ricostituzione (scade dopo 10-14 giorni).'
+    ],
+    priorityEmergency: true,
+    calculateDoses: (w: number) => {
+      // Alto dosaggio 80-90 mg/kg/die (OMA / Polmonite)
+      const highTot = Math.min(Math.round(w * 90), 3000);
+      const highTid = Math.round(highTot / 3);
+      const isHighMax = w * 90 >= 3000;
+      // Sospensione 250 mg / 5 mL = 50 mg/mL
+      const mlHigh = (highTid / 50).toFixed(1);
+
+      // Dosaggio standard 50 mg/kg/die (Faringite streptococcica)
+      const stdTot = Math.min(Math.round(w * 50), 2000);
+      const stdTid = Math.round(stdTot / 3);
+      const stdBid = Math.round(stdTot / 2);
+      const isStdMax = w * 50 >= 2000;
+      const mlStdTid = (stdTid / 50).toFixed(1);
+      const mlStdBid = (stdBid / 50).toFixed(1);
+
+      return [
+        {
+          label: 'Alto Dosaggio: OMA / Polmonite Comunitaria CAP (90 mg/kg/die)',
+          route: 'OS',
+          rawFormula: '80-90 mg/kg/die suddivisi in 3 dosi ogni 8 ore (max 1.000 mg/dose, max 3.000 mg/die)',
+          calculatedValue: `${highTid} mg ogni 8h (totale ${highTot} mg/die)`,
+          unit: 'mg/dose',
+          numericDose: highTid,
+          volumeInfo: `Sospensione 250 mg/5 mL (50 mg/mL): somministrare ${mlHigh} mL ogni 8 ore`,
+          maxDoseCap: 'Max 1.000 mg per singola dose (max 3.000 mg/die)',
+          isMaxDoseReached: isHighMax,
+          frequencyOrDuration: 'Ogni 8 ore a stomaco pieno per 8-10 giorni'
+        },
+        {
+          label: 'Dosaggio Standard: Faringotonsillite Streptococcica SBEA (50 mg/kg/die)',
+          route: 'OS',
+          rawFormula: '50 mg/kg/die in 2 o 3 somministrazioni per 10 giorni (max 2.000 mg/die)',
+          calculatedValue: `${stdTid} mg ogni 8h (o ${stdBid} mg ogni 12h) - totale ${stdTot} mg/die`,
+          unit: 'mg/dose',
+          numericDose: stdTid,
+          volumeInfo: `Sospensione 250 mg/5 mL (50 mg/mL): somministrare ${mlStdTid} mL ogni 8h (oppure ${mlStdBid} mL ogni 12h)`,
+          maxDoseCap: 'Max 2.000 mg/die',
+          isMaxDoseReached: isStdMax,
+          frequencyOrDuration: 'Per 10 giorni interi per eradicazione dello Streptococco'
+        }
+      ];
+    }
+  },
+  {
+    id: 'cefixima',
+    name: 'Cefixima',
+    commercialNames: ['Cefixoral sospensione 100 mg/5 mL e cpr 400 mg', 'Unixime', 'Suprax'],
+    category: 'antibiotici',
+    sectionNum: 8,
+    sectionTitle: 'Antibiotici di Comune Impiego in Pronto Soccorso',
+    summaryDose: 'OS: 8 mg/kg/die in singola somministrazione giornaliera o ogni 12h (max 400 mg/die)',
+    routes: ['OS'],
+    indications: [
+      'Infezioni acute delle vie urinarie (IVU / cistite / pielonefrite) nel bambino trattabile a domicilio per os',
+      'Otite media acuta refrattaria a precedente terapia con amoxicillina o in recidiva precoce',
+      'Infezioni batteriche respiratorie quando indicata una cefalosporina orale di 3ª generazione'
+    ],
+    contraindications: [
+      'Ipersensibilità nota a cefixima, altre cefalosporine o storia di anafilassi a penicilline',
+      'Lattanti sotto i 6 mesi di vita (dati di sicurezza non stabiliti)'
+    ],
+    adverseEffectsAndNotes: [
+      'Cefalosporina di 3ª generazione per via orale di prima scelta in Pronto Soccorso pediatrico per infezioni delle vie urinarie (IVU).',
+      'Notevole comodità posologica: somministrazione in monodose giornaliera (una volta ogni 24 ore) oppure ogni 12 ore.',
+      'Sospensione orale pediatrica 100 mg / 5 mL (= 20 mg/mL): 8 mg/kg equivalgono esattamente a 0,4 mL/kg/die.',
+      'Compresse dispersibili o rivestite da 400 mg: riservate a ragazzi e adolescenti (>45-50 kg).'
+    ],
+    calculateDoses: (w: number) => {
+      const totDose = Math.min(Math.round(w * 8), 400);
+      const isMax = w * 8 >= 400;
+      // 100 mg / 5 mL = 20 mg/mL
+      const mlTot = (totDose / 20).toFixed(1);
+      const mlBid = (totDose / 40).toFixed(1);
+      const doseBid = Math.round(totDose / 2);
+
+      return [
+        {
+          label: 'Infezioni Vie Urinarie (IVU) - Monodose Giornaliera',
+          route: 'OS',
+          rawFormula: '8 mg/kg/die in monosomministrazione ogni 24 ore (max 400 mg/die)',
+          calculatedValue: `${totDose} mg una volta al giorno`,
+          unit: 'mg/die',
+          numericDose: totDose,
+          volumeInfo: `Sospensione 100 mg/5 mL (20 mg/mL): somministrare ${mlTot} mL una volta al giorno`,
+          maxDoseCap: 'Max 400 mg/die (20 mL/die)',
+          isMaxDoseReached: isMax,
+          frequencyOrDuration: 'Una volta al giorno per 7-10 giorni'
+        },
+        {
+          label: 'Schema in 2 Somministrazioni (ogni 12 ore)',
+          route: 'OS',
+          rawFormula: '4 mg/kg ogni 12 ore (totale 8 mg/kg/die, max 400 mg/die)',
+          calculatedValue: `${doseBid} mg ogni 12h (totale ${totDose} mg/die)`,
+          unit: 'mg/dose',
+          numericDose: doseBid,
+          volumeInfo: `Sospensione 100 mg/5 mL (20 mg/mL): somministrare ${mlBid} mL ogni 12 ore`,
+          maxDoseCap: 'Max 200 mg ogni 12h (max 400 mg/die)',
+          isMaxDoseReached: isMax,
+          frequencyOrDuration: 'Ogni 12 ore per 7-10 giorni'
+        }
+      ];
+    }
+  },
+  {
     id: 'ceftriaxone',
     name: 'Ceftriaxone',
     commercialNames: ['Rocefin fiale'],
@@ -373,7 +502,9 @@ export const DRUGS_GROUP_2: DrugItem[] = [
       'Formulazione orosolubile (Zydis) ideale nel bambino che non trattiene liquidi per bocca.'
     ],
     calculateDoses: (w: number) => {
-      const calcExact = Math.min(Number((w * 0.15).toFixed(2)), 8.0);
+      const maxOndansetron = w < 30 ? 4.0 : 8.0;
+      const calcExact = Math.min(Number((w * 0.15).toFixed(2)), maxOndansetron);
+      const calcMin = Math.min(Number((w * 0.1).toFixed(2)), maxOndansetron);
       let fasciaDose = 2;
       let fasciaNote = 'Fascia 8-15 kg';
       if (w < 8) {
@@ -404,82 +535,33 @@ export const DRUGS_GROUP_2: DrugItem[] = [
           numericDose: fasciaDose,
           volumeInfo: `Compressa orosolubile: ${fasciaDose} mg | Fiala EV (2 mg/mL): ${evVol} mL | Sciroppo (4 mg/5 mL): ${syrVol} mL`,
           preparationAdvice: fasciaNote,
-          maxDoseCap: 'Max 8 mg per singola dose',
-          isMaxDoseReached: fasciaDose >= 8,
+          maxDoseCap: `Max ${maxOndansetron} mg per singola dose (${w < 30 ? 'bambino <30 kg' : 'adolescente'})`,
+          isMaxDoseReached: fasciaDose >= maxOndansetron,
           frequencyOrDuration: 'Singola dose; ripetibile solo dopo 6-8h se necessario'
         },
         {
           label: 'Dosaggio esatto su kg corporeo (0,1-0,15 mg/kg)',
           route: 'OS / EV',
-          rawFormula: '0,1-0,15 mg/kg/dose (max 4-8 mg)',
-          calculatedValue: `${Math.min(Number((w * 0.1).toFixed(2)), 4.0)} - ${calcExact} mg`,
+          rawFormula: `0,1-0,15 mg/kg/dose (max ${maxOndansetron} mg)`,
+          calculatedValue: calcMin === calcExact ? `${calcExact} mg` : `${calcMin} - ${calcExact} mg`,
           unit: 'mg',
           numericDose: calcExact,
-          volumeInfo: `Fiala EV (2 mg/mL): ${(Math.min(Number((w * 0.1).toFixed(2)), 4.0)/2).toFixed(1)} - ${(calcExact/2).toFixed(1)} mL`,
-          maxDoseCap: 'Max 4-8 mg per dose',
-          isMaxDoseReached: w * 0.15 >= 8,
+          volumeInfo: `Fiala EV (2 mg/mL): ${(calcMin/2).toFixed(1)} - ${(calcExact/2).toFixed(1)} mL`,
+          maxDoseCap: `Max ${maxOndansetron} mg per dose (${w < 30 ? 'bambino <30 kg' : 'adolescente/adulto'})`,
+          isMaxDoseReached: w * 0.15 >= maxOndansetron,
           frequencyOrDuration: 'Ripetibile dopo 6-8 ore'
         }
       ];
     }
   },
 
-  // 10. ANTISPASTICI E SINTOMATICI
-  {
-    id: 'butilscopolamina',
-    name: 'Butilscopolamina (N-butilbromuro di joscina)',
-    commercialNames: ['Buscopan fiale 20 mg/mL'],
-    category: 'antispastici',
-    sectionNum: 10,
-    sectionTitle: 'Antispastici e Altri Farmaci Sintomatici',
-    summaryDose: 'EV/IM: 0,3-0,5 mg/kg/dose (max 20 mg), ogni 6-8h',
-    routes: ['EV', 'IM', 'OS'],
-    indications: [
-      'Dolore addominale acuto di tipo colico (colica biliare, spasmo intestinale, colica renale in età scolare/adolescenziale)'
-    ],
-    contraindications: [
-      'Glaucoma ad angolo acuto',
-      'Megacolon tossico o dilatazione gastrica',
-      'Ostruzione meccanica del tratto gastroenterico o urinario',
-      'Miastenia gravis',
-      'Tachiaritmie'
-    ],
-    adverseEffectsAndNotes: [
-      'Effetti anticolinergici noti: secchezza delle fauci, transitoria tachicardia, stipsi, ritenzione urinaria.',
-      'Non utilizzare nel dolore addominale indifferenziato prima di aver escluso un quadro chirurgico acuto (appendicite, invaginazione).'
-    ],
-    calculateDoses: (w: number) => {
-      const minDose = Number((w * 0.3).toFixed(1));
-      const maxDose = Math.min(Number((w * 0.5).toFixed(1)), 20);
-      const isMax = w * 0.5 >= 20;
-      // Fiala 20 mg/1 mL
-      const volMin = (minDose / 20).toFixed(2);
-      const volMax = (maxDose / 20).toFixed(2);
-
-      return [
-        {
-          label: 'Endovenoso lento o Intramuscolare',
-          route: 'EV lenta / IM / OS',
-          rawFormula: '0,3-0,5 mg/kg/dose (max 20 mg)',
-          calculatedValue: minDose === maxDose ? `${maxDose} mg` : `${minDose} - ${maxDose} mg`,
-          unit: 'mg',
-          numericDose: maxDose,
-          volumeInfo: `Fiala da 20 mg/1 mL: aspirare ~${volMin} - ${volMax} mL (diluire per infusione EV lenta in 5-10 min)`,
-          maxDoseCap: 'Max 20 mg per dose',
-          isMaxDoseReached: isMax,
-          frequencyOrDuration: 'Ripetibile ogni 6-8 ore al bisogno'
-        }
-      ];
-    }
-  },
-
-  // 11. ANTIDOTI E INTOSSICAZIONI
+  // 10. ANTIDOTI E INTOSSICAZIONI
   {
     id: 'naloxone',
     name: 'Naloxone',
     commercialNames: ['Narcan fiale 0,4 mg/mL'],
     category: 'antidoti',
-    sectionNum: 11,
+    sectionNum: 10,
     sectionTitle: 'Antidoti e Trattamento delle Intossicazioni',
     summaryDose: '0,01-0,1 mg/kg/dose EV/IM/IO/IN (max 2 mg), ogni 2-3 min al bisogno',
     routes: ['EV', 'IM', 'IO', 'IN'],
@@ -522,7 +604,7 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     name: 'Flumazenil',
     commercialNames: ['Anexate fiale 0,5 mg/5 mL (0,1 mg/mL)'],
     category: 'antidoti',
-    sectionNum: 11,
+    sectionNum: 10,
     sectionTitle: 'Antidoti e Trattamento delle Intossicazioni',
     summaryDose: 'EV: 0,01 mg/kg/dose (max 0,2 mg), ogni minuto fino a max 1 mg totale',
     routes: ['EV'],
@@ -565,7 +647,7 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     name: 'N-Acetilcisteina (NAC)',
     commercialNames: ['Fluimucil Antidoto fiale 20% (300 mg/mL o flaconi 20g/100mL)'],
     category: 'antidoti',
-    sectionNum: 11,
+    sectionNum: 10,
     sectionTitle: 'Antidoti e Trattamento delle Intossicazioni',
     summaryDose: 'Protocollo EV trifasico (Rumack-Matthew): 150 mg/kg in 60m, poi 50 mg/kg in 4h, poi 100 mg/kg in 16h',
     routes: ['EV', 'OS'],
@@ -579,36 +661,42 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     ],
     highRisk: true,
     calculateDoses: (w: number) => {
-      const dose1 = Math.round(w * 150);
-      const dose2 = Math.round(w * 50);
-      const dose3 = Math.round(w * 100);
+      const dose1 = Math.min(Math.round(w * 150), 15000);
+      const dose2 = Math.min(Math.round(w * 50), 5000);
+      const dose3 = Math.min(Math.round(w * 100), 10000);
 
       return [
         {
           label: 'Fase 1: Dose da Carico (in 60 minuti)',
           route: 'EV in 60 min',
-          rawFormula: '150 mg/kg in 60 minuti diluiti in Glucosata 5% o SF (volume adeguato per età)',
+          rawFormula: '150 mg/kg in 60 minuti diluiti in Glucosata 5% o SF (max 15 g)',
           calculatedValue: `${dose1} mg (= ${(dose1/1000).toFixed(1)} g)`,
           unit: 'mg',
           numericDose: dose1,
+          maxDoseCap: 'Max 15.000 mg (15 g)',
+          isMaxDoseReached: w * 150 >= 15000,
           frequencyOrDuration: 'Infusione in 60 minuti'
         },
         {
           label: 'Fase 2: Seconda Infusione (in 4 ore)',
           route: 'EV in 4 ore',
-          rawFormula: '50 mg/kg nelle successive 4 ore',
+          rawFormula: '50 mg/kg nelle successive 4 ore (max 5 g)',
           calculatedValue: `${dose2} mg (= ${(dose2/1000).toFixed(2)} g)`,
           unit: 'mg',
           numericDose: dose2,
+          maxDoseCap: 'Max 5.000 mg (5 g)',
+          isMaxDoseReached: w * 50 >= 5000,
           frequencyOrDuration: 'Infusione in 4 ore consecutive'
         },
         {
           label: 'Fase 3: Terza Infusione (in 16 ore)',
           route: 'EV in 16 ore',
-          rawFormula: '100 mg/kg nelle successive 16 ore',
+          rawFormula: '100 mg/kg nelle successive 16 ore (max 10 g)',
           calculatedValue: `${dose3} mg (= ${(dose3/1000).toFixed(2)} g)`,
           unit: 'mg',
           numericDose: dose3,
+          maxDoseCap: 'Max 10.000 mg (10 g)',
+          isMaxDoseReached: w * 100 >= 10000,
           frequencyOrDuration: 'Infusione continua in 16 ore'
         }
       ];
@@ -619,7 +707,7 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     name: 'Glucagone',
     commercialNames: ['GlucaGen HypoKit 1 mg polvere e solvente'],
     category: 'antidoti',
-    sectionNum: 11,
+    sectionNum: 10,
     sectionTitle: 'Antidoti e Trattamento delle Intossicazioni',
     summaryDose: 'IM/SC: 0,5 mg se <25 kg; 1 mg se ≥25 kg (o 0,03 mg/kg)',
     routes: ['IM', 'SC', 'EV'],
@@ -654,13 +742,13 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     }
   },
 
-  // 12. LIQUIDI ENDOVENOSI E GESTIONE IPOGLICEMIA
+  // 11. LIQUIDI ENDOVENOSI E GESTIONE IPOGLICEMIA
   {
     id: 'soluzione-fisiologica',
     name: 'Soluzione Fisiologica (NaCl 0,9%)',
     commercialNames: ['Sodio Cloruro 0,9% sacche'],
     category: 'liquidi',
-    sectionNum: 12,
+    sectionNum: 11,
     sectionTitle: 'Liquidi Endovenosi e Gestione dell\'Ipoglicemia',
     summaryDose: 'Bolo di riempimento: 10-20 mL/kg in 5-20 min, rivalutare e ripetere al bisogno (fino a 40-60 mL/kg nello shock settico)',
     routes: ['EV', 'IO'],
@@ -714,7 +802,7 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     name: 'Ringer Lattato / Acetato (Cristalloidi Bilanciati)',
     commercialNames: ['Ringer Lattato sacche'],
     category: 'liquidi',
-    sectionNum: 12,
+    sectionNum: 11,
     sectionTitle: 'Liquidi Endovenosi e Gestione dell\'Ipoglicemia',
     summaryDose: 'Bolo: 10-20 mL/kg in 5-20 min EV/IO',
     routes: ['EV', 'IO'],
@@ -748,13 +836,13 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     }
   },
 
-  // 13. SEPSI E SHOCK SETTICO PEDIATRICO
+  // 12. SEPSI E SHOCK SETTICO PEDIATRICO
   {
     id: 'sepsi-cristalloidi',
     name: 'Cristalloidi Bilanciati in Sepsi (1ª Scelta SSC 2020)',
     commercialNames: ['Ringer Lattato o Ringer Acetato'],
     category: 'sepsi',
-    sectionNum: 13,
+    sectionNum: 12,
     sectionTitle: 'Sepsi e Shock Settico Pediatrico',
     summaryDose: 'Bolo: 10-20 mL/kg in 10-20 min (fino a 40-60 mL/kg nella 1ª ora se disponibilità di TI)',
     routes: ['EV', 'IO'],
@@ -795,7 +883,7 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     name: 'Ceftriaxone (Antibiotico Empirico Sepsi Comunitaria)',
     commercialNames: ['Rocefin'],
     category: 'sepsi',
-    sectionNum: 13,
+    sectionNum: 12,
     sectionTitle: 'Sepsi e Shock Settico Pediatrico',
     summaryDose: 'EV/IO: 50-100 mg/kg (max 2-4 g) ENTRO 1 ORA dal riconoscimento',
     routes: ['EV', 'IO'],
@@ -834,7 +922,7 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     name: 'Noradrenalina (Vasopressore Shock Settico)',
     commercialNames: ['Noradrenalina tartrato fiale 2 mg/mL'],
     category: 'sepsi',
-    sectionNum: 13,
+    sectionNum: 12,
     sectionTitle: 'Sepsi e Shock Settico Pediatrico',
     summaryDose: 'Infusione continua EV/IO: 0,05-2 mcg/kg/min titolando su pressione arteriosa e perfusione',
     routes: ['EV continua', 'IO continua'],
@@ -871,13 +959,13 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     }
   },
 
-  // 14. CHETOACIDOSI DIABETICA (DKA) IN ETÀ PEDIATRICA
+  // 13. CHETOACIDOSI DIABETICA (DKA) IN ETÀ PEDIATRICA
   {
     id: 'dka-espansione',
     name: 'Soluzione Fisiologica 0,9% (DKA Espansione Iniziale)',
     commercialNames: ['NaCl 0,9%'],
     category: 'dka',
-    sectionNum: 14,
+    sectionNum: 13,
     sectionTitle: 'Chetoacidosi Diabetica (DKA) in Età Pediatrica',
     summaryDose: '10-20 mL/kg EV in 20-30 minuti, SOLO se segni di shock/ipoperfusione significativa',
     routes: ['EV'],
@@ -914,7 +1002,7 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     name: 'Insulina Regolare (Infusione Continua DKA)',
     commercialNames: ['Actrapid', 'Humulin R'],
     category: 'dka',
-    sectionNum: 14,
+    sectionNum: 13,
     sectionTitle: 'Chetoacidosi Diabetica (DKA) in Età Pediatrica',
     summaryDose: 'EV continua: 0,05-0,1 UI/kg/ora, iniziata ALMENO 1 ORA DOPO l\'avvio della reidratazione (MAI IN BOLO!)',
     routes: ['EV infusione continua'],
@@ -953,7 +1041,7 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     name: 'Potassio Cloruro (KCl nella DKA)',
     commercialNames: ['KCl concentrato fiale'],
     category: 'dka',
-    sectionNum: 14,
+    sectionNum: 13,
     sectionTitle: 'Chetoacidosi Diabetica (DKA) in Età Pediatrica',
     summaryDose: '20-40 mEq/L nei liquidi di infusione (dopo documentata diuresi e K+ < 5,5 mEq/L). MAI in bolo rapido!',
     routes: ['EV in infusione diluita'],
@@ -988,7 +1076,7 @@ export const DRUGS_GROUP_2: DrugItem[] = [
     name: 'Mannitolo 20% (Emergenza Edema Cerebrale in DKA)',
     commercialNames: ['Mannitolo 20% flaconi'],
     category: 'dka',
-    sectionNum: 14,
+    sectionNum: 13,
     sectionTitle: 'Chetoacidosi Diabetica (DKA) in Età Pediatrica',
     summaryDose: '0,5-1 g/kg EV in 10-15 min ai primi segni di allarme per edema cerebrale',
     routes: ['EV in 10-15 min'],

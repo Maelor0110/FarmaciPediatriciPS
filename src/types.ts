@@ -7,7 +7,6 @@ export type DrugCategory =
   | 'cardiovascolari'
   | 'antibiotici'
   | 'antiemetici'
-  | 'antispastici'
   | 'antidoti'
   | 'liquidi'
   | 'sepsi'

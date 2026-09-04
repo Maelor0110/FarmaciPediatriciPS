@@ -129,51 +129,6 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     }
   },
   {
-    id: 'ketorolac',
-    name: 'Ketorolac',
-    commercialNames: ['Toradol', 'Lixidol'],
-    category: 'analgesici',
-    sectionNum: 2,
-    sectionTitle: 'Analgesici e Antipiretici',
-    summaryDose: '0,5 mg/kg/dose ogni 6-8h EV/IM (max 30 mg/dose)',
-    routes: ['EV', 'IM'],
-    indications: ['Dolore acuto moderato-severo (es. colica renale, post-operatorio, trauma)'],
-    contraindications: [
-      'Età < 6 mesi',
-      'Insufficienza renale acuta o cronica',
-      'Sanguinamento attivo o sospetto rischio emorragico (piastrinopenia, coagulopatia)',
-      'Disidratazione / ipovolemia marcata',
-      'Asma da FANS'
-    ],
-    adverseEffectsAndNotes: [
-      'Uso di breve durata: max 5 giorni (non oltre 48-72h raccomandato in pediatria).',
-      'Monitorare la diuresi e la funzione renale.'
-    ],
-    calculateDoses: (w: number) => {
-      const minDose = Math.min(Number((w * 0.25).toFixed(1)), 15);
-      const maxDose = Math.min(Number((w * 0.5).toFixed(1)), 30);
-      const isMax = w * 0.5 >= 30;
-      // Fiala 30 mg/mL
-      const volMin = (minDose / 30).toFixed(2);
-      const volMax = (maxDose / 30).toFixed(2);
-
-      return [
-        {
-          label: 'Endovenoso / Intramuscolare',
-          route: 'EV / IM',
-          rawFormula: '0,25-0,5 mg/kg/dose ogni 6-8h (max 15-30 mg/dose; durata max 48-72h)',
-          calculatedValue: minDose === maxDose ? `${maxDose} mg` : `${minDose} - ${maxDose} mg`,
-          unit: 'mg',
-          numericDose: maxDose,
-          volumeInfo: `Fiala 30 mg/1 mL: aspirare ~${volMin} - ${volMax} mL (diluire in SF per infusione EV in 15 min)`,
-          maxDoseCap: 'Max 15 mg (<16 anni) / 30 mg per singola dose; max 60-90 mg/die',
-          isMaxDoseReached: isMax,
-          frequencyOrDuration: 'Ogni 6-8 ore al bisogno (durata massima 48-72 ore)'
-        }
-      ];
-    }
-  },
-  {
     id: 'morfina-solfato',
     name: 'Morfina Solfato',
     commercialNames: ['Morfina Cloridrato/Solfato fiale'],
@@ -260,11 +215,12 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     antidote: 'Naloxone',
     highRisk: true,
     calculateDoses: (w: number) => {
-      const evMin = Math.min(Math.round(w * 1), 100);
-      const evMax = Math.min(Math.round(w * 2), 100);
-      const isMaxEv = w * 2 >= 100;
-      const inMin = Math.min(Math.round(w * 1.5), 100);
-      const inMax = Math.min(Math.round(w * 2.0), 100);
+      const maxCap = w < 25 ? 50 : 100;
+      const evMin = Math.min(Math.round(w * 1), maxCap);
+      const evMax = Math.min(Math.round(w * 2), maxCap);
+      const isMaxEv = w * 2 >= maxCap;
+      const inMin = Math.min(Math.round(w * 1.5), maxCap);
+      const inMax = Math.min(Math.round(w * 2.0), maxCap);
 
       // Fiala standard 50 mcg/mL (0,05 mg/mL)
       const evVolMin = (evMin / 50).toFixed(2);
@@ -276,24 +232,24 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Via Intranasale (IN con dispositivo MAD)',
           route: 'IN',
-          rawFormula: '1,5-2 mcg/kg/dose (usare fiala pura 50 mcg/mL; max 100 mcg)',
+          rawFormula: `1,5-2 mcg/kg/dose (usare fiala pura 50 mcg/mL; max ${maxCap} mcg)`,
           calculatedValue: inMin === inMax ? `${inMax} mcg` : `${inMin} - ${inMax} mcg`,
           unit: 'mcg',
           numericDose: inMin,
           volumeInfo: `Fiala da 50 mcg/mL pura: aspirare ~${inVolMin} - ${inVolMax} mL (dividere metà volume per narice, max 0,5 mL/narice)`,
-          maxDoseCap: 'Max 100 mcg per singola dose',
-          isMaxDoseReached: w * 2 >= 100,
+          maxDoseCap: `Max ${maxCap} mcg per dose (${w < 25 ? 'bambino <25 kg' : 'adolescente'})`,
+          isMaxDoseReached: w * 2 >= maxCap,
           frequencyOrDuration: 'Ripetibile dopo 10-15 min se analgesia incompleta'
         },
         {
           label: 'Via Endovenosa (EV bolo lento in 2-3 min)',
           route: 'EV',
-          rawFormula: '1-2 mcg/kg/dose lenta (max 50-100 mcg)',
+          rawFormula: `1-2 mcg/kg/dose lenta (max ${maxCap} mcg)`,
           calculatedValue: evMin === evMax ? `${evMax} mcg` : `${evMin} - ${evMax} mcg`,
           unit: 'mcg',
           numericDose: evMax,
           volumeInfo: `Fiala da 50 mcg/mL: aspirare ${evVolMin} - ${evVolMax} mL (infondere lentamente in 2-3 min)`,
-          maxDoseCap: 'Max singola dose 50-100 mcg',
+          maxDoseCap: `Max ${maxCap} mcg per dose (${w < 25 ? 'bambino <25 kg' : 'adolescente'})`,
           isMaxDoseReached: isMaxEv,
           frequencyOrDuration: 'Ripetibile ogni 30-60 min sotto monitoraggio'
         }
@@ -440,53 +396,6 @@ export const DRUGS_GROUP_1: DrugItem[] = [
           maxDoseCap: `Max ${maxImCap} mg (${w < 40 ? 'bambino' : 'adolescente'})`,
           isMaxDoseReached: isMaxIm,
           frequencyOrDuration: 'Inizio azione in 3-5 min, durata 20-30 min'
-        }
-      ];
-    }
-  },
-  {
-    id: 'propofol',
-    name: 'Propofol',
-    commercialNames: ['Diprivan'],
-    category: 'sedazione',
-    sectionNum: 3,
-    sectionTitle: 'Sedazione e Analgesia Procedurale',
-    summaryDose: 'EV: 1-2 mg/kg bolo lento (max 100-200 mg), mantenimento 1-2 mg/kg ripetibile',
-    routes: ['EV'],
-    indications: ['Sedazione procedurale profonda (solo personale esperto in gestione avanzata vie aeree)'],
-    contraindications: [
-      'Allergia a uovo / soia (formulazione lipidica)',
-      'Instabilità emodinamica o shock ipovolemico',
-      'Età neonatale (uso con estrema cautela)'
-    ],
-    adverseEffectsAndNotes: [
-      'Elevato rischio di apnea transitoria e ipotensione arteriosa.',
-      'Dose massima bolo: max 100 mg nel bambino piccolo, max 200 mg nell\'adolescente.',
-      'Necessita di monitoraggio avanzato continuo e disponibilità immediata di presidi per intubazione.',
-      'Riservato ad anestesisti / rianimatori o medici d\'urgenza specificamente accreditati.'
-    ],
-    highRisk: true,
-    calculateDoses: (w: number) => {
-      const maxCap = w < 40 ? 100 : 200;
-      const minDose = Number(Math.min(w * 1.0, maxCap).toFixed(1));
-      const maxDose = Number(Math.min(w * 2.0, maxCap).toFixed(1));
-      const isMax = w * 2.0 >= maxCap;
-      // Formulazione 1% = 10 mg/mL
-      const volMin = (minDose / 10).toFixed(1);
-      const volMax = (maxDose / 10).toFixed(1);
-
-      return [
-        {
-          label: 'Bolo EV lento',
-          route: 'EV',
-          rawFormula: `1-2 mg/kg bolo lento (max ${maxCap} mg), mantenimento 1-2 mg/kg ripetibile a risposta`,
-          calculatedValue: `${minDose} - ${maxDose} mg`,
-          unit: 'mg',
-          numericDose: minDose,
-          volumeInfo: `Emulsione 10 mg/mL (1%): ${volMin} - ${volMax} mL EV lento`,
-          maxDoseCap: `Max ${maxCap} mg per singolo bolo iniziale`,
-          isMaxDoseReached: isMax,
-          frequencyOrDuration: 'Titolare lentamente sotto controllo continuo vie aeree'
         }
       ];
     }
@@ -709,6 +618,71 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     }
   },
   {
+    id: 'betametasone',
+    name: 'Betametasone',
+    commercialNames: ['Bentelan cpr effervescenti 0,5 mg e 1 mg', 'Bentelan fiale 1,5 mg/2 mL e 4 mg/2 mL'],
+    category: 'respiratorie',
+    sectionNum: 4,
+    sectionTitle: 'Emergenze Respiratorie (Asma, Croup)',
+    summaryDose: 'Croup: 0,1-0,2 mg/kg dose singola (max 4 mg) | Asma / Orticaria: 0,1-0,2 mg/kg/die per 3-5 gg (max 4 mg/die)',
+    routes: ['OS', 'EV', 'IM'],
+    indications: [
+      'Laringite acuta ipoglottica (Croup / Laringospasmo) di grado moderato-severo (farmaco cortisonico di prima linea in PS pediatrico italiano)',
+      'Crisi asmatica acuta / broncospasmo con wheezing',
+      'Orticaria acuta, angioedema e reazioni allergiche sistemiche'
+    ],
+    contraindications: [
+      'Ipersensibilità nota a betametasone o ad altri corticosteroidi',
+      'Infezioni sistemiche micotiche o virali non controllate (es. varicella attiva)'
+    ],
+    adverseEffectsAndNotes: [
+      'Corticosteroide sistemico orale di prima scelta assoluta in emergenza pediatrica in Italia (Bentelan).',
+      'Compresse effervescenti idrosolubili: si sciolgono rapidamente in pochissima acqua (anche su un cucchiaino da caffè per lattanti) o latte.',
+      'Croup: dose singola 0,1-0,2 mg/kg (spesso risolutiva in 1-2 ore, associabile ad adrenalina nebulizzata nelle forme gravi).',
+      'Asma e orticaria acuta: cicli brevi di 3-5 giorni; non richiede scalaggio graduale ("décalage") se la durata è ≤ 5 giorni.'
+    ],
+    priorityEmergency: true,
+    calculateDoses: (w: number) => {
+      const capBetametasone = w < 30 ? 4.0 : 6.0;
+      const minDose = Number(Math.min(w * 0.1, capBetametasone).toFixed(2));
+      const maxDose = Number(Math.min(w * 0.2, capBetametasone).toFixed(2));
+      const isMax = w * 0.2 >= capBetametasone;
+
+      // Compresse effervescenti 0,5 mg e 1 mg
+      const cpr1mg = (maxDose / 1).toFixed(1);
+      const cpr05mg = (maxDose / 0.5).toFixed(1);
+      // Fiala 4 mg/2 mL (2 mg/mL)
+      const volFiala4mg = (maxDose / 2).toFixed(2);
+
+      return [
+        {
+          label: 'Croup / Laringite Acuta (Dose Singola)',
+          route: 'OS / EV / IM',
+          rawFormula: `0,1 - 0,2 mg/kg in singola somministrazione (max ${capBetametasone} mg)`,
+          calculatedValue: minDose === maxDose ? `${maxDose} mg` : `${minDose} - ${maxDose} mg`,
+          unit: 'mg',
+          numericDose: maxDose,
+          volumeInfo: `Compresse effervescenti Bentelan: ~${cpr1mg} cpr da 1 mg (oppure ~${cpr05mg} cpr da 0,5 mg sciolte in poca acqua). Se parenterale: fiala 4 mg/2 mL (2 mg/mL) aspirare ${volFiala4mg} mL`,
+          maxDoseCap: `Max ${capBetametasone} mg per singola dose (${w < 30 ? 'bambino <30 kg' : 'adolescente'})`,
+          isMaxDoseReached: isMax,
+          frequencyOrDuration: 'Dose singola (ripetibile a 12-24 ore se persistenza di stridore a riposo)'
+        },
+        {
+          label: 'Asma / Broncospasmo / Reazioni Allergiche (Dose Giornaliera)',
+          route: 'OS / EV / IM',
+          rawFormula: `0,1 - 0,2 mg/kg/die in 1 o 2 somministrazioni (max ${capBetametasone} mg/die)`,
+          calculatedValue: minDose === maxDose ? `${maxDose} mg/die` : `${minDose} - ${maxDose} mg/die`,
+          unit: 'mg/die',
+          numericDose: maxDose,
+          volumeInfo: `Suddividere in 1-2 somministrazioni al giorno: ${(maxDose / 2).toFixed(2)} mg ogni 12h (a stomaco pieno)`,
+          maxDoseCap: `Max ${capBetametasone} mg/die (${w < 30 ? 'bambino <30 kg' : 'adolescente'})`,
+          isMaxDoseReached: isMax,
+          frequencyOrDuration: 'Per 3-5 giorni (non richiede scalare se durata ≤ 5 giorni)'
+        }
+      ];
+    }
+  },
+  {
     id: 'prednisone',
     name: 'Prednisone / Prednisolone',
     commercialNames: ['Deltacortene', 'Solu-Medrol', 'Deltastene'],
@@ -894,6 +868,77 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     }
   },
   {
+    id: 'cetirizina',
+    name: 'Cetirizina',
+    commercialNames: ['Zirtec gocce e cpr', 'Formistin', 'Reactine', 'Cetirizina generico'],
+    category: 'anafilassi',
+    sectionNum: 5,
+    sectionTitle: 'Anafilassi e Reazioni Allergiche Severe',
+    summaryDose: 'OS: 0,25 mg/kg/die | <6 anni (o <25 kg): 2,5-5 mg/die (5-10 gtt) | ≥6 anni (o ≥25 kg): 10 mg/die (20 gtt o 1 cpr)',
+    routes: ['OS'],
+    indications: [
+      'Orticaria acuta, dermografismo e prurito allergico intenso',
+      'Reazioni allergiche cutanee da punture d\'insetto o alimentari lievi/moderate',
+      'Rinite e congiuntivite allergica acuta'
+    ],
+    contraindications: [
+      'Ipersensibilità nota a cetirizina, idrossizina o derivati piperazinici',
+      'Insufficienza renale grave (eGFR < 15 mL/min)',
+      'Lattanti sotto i 6 mesi di vita (dati di sicurezza limitati)'
+    ],
+    adverseEffectsAndNotes: [
+      'Antistaminico H1 di seconda generazione di prima scelta per via orale in età pediatrica: ottima efficacia e assenza o minima sedazione rispetto agli antistaminici di prima generazione (clorfenamina, idrossizina).',
+      'Formulazione gocce orali (10 mg/mL): 1 goccia = 0,5 mg (20 gocce = 1 mL = 10 mg). Assumibile con poca acqua o latte.',
+      'Inizio d\'azione rapido entro 20-30 minuti dall\'assunzione.',
+      'ATTENZIONE: nell\'anafilassi non sostituisce mai l\'ADRENALINA IM! L\'antistaminico è solo terapia sintomatica per il prurito e i pomfi.'
+    ],
+    calculateDoses: (w: number) => {
+      let doseMg = 2.5;
+      let gocce = 5;
+      let freq = '2,5 mg (5 gocce) 1 o 2 volte al giorno (max 5 mg/die)';
+      let maxCap = 'Max 5 mg/die (<6 anni)';
+      let isMax = false;
+
+      if (w < 10) {
+        // Lattante 6-12 mesi
+        const calc = Number((w * 0.25).toFixed(1));
+        doseMg = Math.max(1, Math.min(calc, 2.5));
+        gocce = Math.max(2, Math.round(doseMg / 0.5));
+        freq = `${doseMg} mg (${gocce} gocce) in monosomministrazione giornaliera`;
+        maxCap = 'Max 2,5 mg/die (5 gocce)';
+      } else if (w >= 10 && w < 25) {
+        // Bambino 2-6 anni
+        doseMg = 5;
+        gocce = 10;
+        freq = '2,5 mg (5 gocce) ogni 12 ore oppure 5 mg (10 gocce) alla sera';
+        maxCap = 'Max 5 mg/die (10 gocce)';
+        isMax = true;
+      } else {
+        // Bambino ≥6 anni / ≥25 kg
+        doseMg = 10;
+        gocce = 20;
+        freq = '10 mg (20 gocce o 1 compressa intera) una volta al giorno (oppure 5 mg / 10 gocce ogni 12h)';
+        maxCap = 'Max 10 mg/die (20 gocce o 1 cpr)';
+        isMax = true;
+      }
+
+      return [
+        {
+          label: 'Gocce Orali (10 mg/mL - 1 goccia = 0,5 mg)',
+          route: 'OS',
+          rawFormula: w < 25 ? '0,25 mg/kg/die oppure 2,5 mg x 2/die (<6 anni, max 5 mg/die)' : '10 mg/die in dose singola (oppure 5 mg ogni 12h; max 10 mg/die)',
+          calculatedValue: `${doseMg} mg/die (${gocce} gocce al giorno)`,
+          unit: 'gocce/die',
+          numericDose: doseMg,
+          volumeInfo: `Flacone gocce 10 mg/mL (20 gocce = 1 mL): somministrare ${gocce} gocce totali al giorno`,
+          maxDoseCap: maxCap,
+          isMaxDoseReached: isMax,
+          frequencyOrDuration: freq
+        }
+      ];
+    }
+  },
+  {
     id: 'idrocortisone',
     name: 'Idrocortisone',
     commercialNames: ['Flebocortid', 'Solu-Cortef'],
@@ -1005,8 +1050,10 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     calculateDoses: (w: number) => {
       const maxPr = w < 10 ? 5 : 10;
       const dosePr = Math.min(Number((w * 0.5).toFixed(1)), maxPr);
-      const doseEvMin = Number((w * 0.2).toFixed(1));
-      const doseEvMax = Math.min(Number((w * 0.3).toFixed(1)), 10);
+      const maxEv = w < 25 ? 5 : 10;
+      const doseEvMin = Math.min(Number((w * 0.2).toFixed(1)), maxEv);
+      const doseEvMax = Math.min(Number((w * 0.3).toFixed(1)), maxEv);
+      const isMaxEv = w * 0.3 >= maxEv;
 
       return [
         {
@@ -1023,12 +1070,13 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Via Endovenosa (lenta in 2-3 min)',
           route: 'EV',
-          rawFormula: '0,2-0,3 mg/kg lento (max 10 mg)',
+          rawFormula: `0,2-0,3 mg/kg lento (max ${maxEv} mg)`,
           calculatedValue: `${doseEvMin} - ${doseEvMax} mg`,
           unit: 'mg',
           numericDose: doseEvMax,
           volumeInfo: `Fiala 10 mg/2 mL (5 mg/mL): ${(doseEvMin/5).toFixed(2)} - ${(doseEvMax/5).toFixed(2)} mL`,
-          maxDoseCap: 'Max 10 mg',
+          maxDoseCap: `Max ${maxEv} mg per bolo (${w < 25 ? 'bambino <25 kg' : 'adolescente/adulto'})`,
+          isMaxDoseReached: isMaxEv,
           frequencyOrDuration: 'Ripetibile 1 volta sola dopo 5-10 min'
         }
       ];
@@ -1059,8 +1107,9 @@ export const DRUGS_GROUP_1: DrugItem[] = [
     calculateDoses: (w: number) => {
       const minBuc = Math.min(Number((w * 0.2).toFixed(1)), 10);
       const maxBuc = Math.min(Number((w * 0.3).toFixed(1)), 10);
-      const evMin = Number((w * 0.1).toFixed(1));
-      const evMax = Math.min(Number((w * 0.2).toFixed(1)), 10);
+      const maxEvCap = w < 40 ? 5 : 10;
+      const evMin = Math.min(Number((w * 0.1).toFixed(1)), maxEvCap);
+      const evMax = Math.min(Number((w * 0.2).toFixed(1)), maxEvCap);
       const minIm = Math.min(Number((w * 0.15).toFixed(1)), 10);
       const maxIm = Math.min(Number((w * 0.2).toFixed(1)), 10);
 
@@ -1087,13 +1136,13 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'Endovenoso lento (se via venosa già presente)',
           route: 'EV',
-          rawFormula: '0,1-0,2 mg/kg lento (max 5-10 mg)',
+          rawFormula: `0,1-0,2 mg/kg lento (max ${maxEvCap} mg)`,
           calculatedValue: evMin === evMax ? `${evMax} mg` : `${evMin} - ${evMax} mg`,
           unit: 'mg',
           numericDose: evMax,
           volumeInfo: `Con fiala 5 mg/mL: ${(evMin/5).toFixed(2)} - ${(evMax/5).toFixed(2)} mL`,
-          maxDoseCap: 'Max 5-10 mg',
-          isMaxDoseReached: w * 0.2 >= 10,
+          maxDoseCap: `Max ${maxEvCap} mg per dose (${w < 40 ? 'bambino <40 kg' : 'adolescente'})`,
+          isMaxDoseReached: w * 0.2 >= maxEvCap,
           frequencyOrDuration: 'Iniezione in 2 minuti'
         },
         {
@@ -1151,50 +1200,6 @@ export const DRUGS_GROUP_1: DrugItem[] = [
           maxDoseCap: `Max ${maxCap} mg (${w < 50 ? 'pediatrico' : 'adolescente/adulto'})`,
           isMaxDoseReached: isMax,
           frequencyOrDuration: 'Infusione endovenosa in 15 minuti'
-        }
-      ];
-    }
-  },
-  {
-    id: 'fosfenitoina-fenitoina',
-    name: 'Fosfenitoina / Fenitoina',
-    commercialNames: ['Pro-Epanutin (Fosfenitoina)', 'Dintoina (Fenitoina)'],
-    category: 'convulsioni',
-    sectionNum: 6,
-    sectionTitle: 'Crisi Convulsive e Stato di Male Epilettico',
-    summaryDose: 'Fosfenitoina: 15-20 mg PE/kg EV/IM (max 1500 mg PE, vel max 3 mg PE/kg/min o 150 mg PE/min)',
-    routes: ['EV', 'IM'],
-    indications: ['Stato di male epilettico - 2ª linea (dopo fallimento di 2 dosi di benzodiazepina)'],
-    contraindications: [
-      'Blocco atrioventricolare di II-III grado, bradicardia sinusale severa',
-      'Porfiria',
-      'Cardiopatia / instabilità emodinamica nota (in tal caso preferire Levetiracetam)'
-    ],
-    adverseEffectsAndNotes: [
-      'Fosfenitoina preferita alla Fenitoina per minor rischio di aritmie e di necrosi grave da stravaso ("purple glove syndrome").',
-      'Fosfenitoina può essere somministrata anche per via IM.',
-      'Fenitoina (se fosfenitoina non disponibile): 20 mg/kg in SF lenta (max 1 mg/kg/min o 50 mg/min), mai con glucosata (precipita).',
-      'Monitoraggio ECG e PA continui durante l\'infusione.'
-    ],
-    highRisk: true,
-    calculateDoses: (w: number) => {
-      const minPE = Math.min(Math.round(w * 15), 1500);
-      const maxPE = Math.min(Math.round(w * 20), 1500);
-      const isMax = w * 20 >= 1500;
-      const maxRate = Math.min(Number((w * 3).toFixed(1)), 150);
-
-      return [
-        {
-          label: 'Fosfenitoina (dose da carico PE)',
-          route: 'EV / IM',
-          rawFormula: '15-20 mg PE/kg (max 1.500 mg PE), velocità max 3 mg PE/kg/min (non oltre 150 mg PE/min)',
-          calculatedValue: minPE === maxPE ? `${maxPE} mg PE` : `${minPE} - ${maxPE} mg PE`,
-          unit: 'mg PE',
-          numericDose: maxPE,
-          volumeInfo: `Fiala da 75 mg/mL PE: aspirare ${(minPE / 75).toFixed(1)} - ${(maxPE / 75).toFixed(1)} mL (diluire in SF o Glucosata 5%)`,
-          maxDoseCap: 'Max 1.500 mg PE | Velocità max: ' + maxRate + ' mg PE/min',
-          isMaxDoseReached: isMax,
-          frequencyOrDuration: 'Infusione in circa 10-15 minuti sotto monitoraggio ECG e PA'
         }
       ];
     }
@@ -1367,9 +1372,10 @@ export const DRUGS_GROUP_1: DrugItem[] = [
       'Rispettare rigorosamente la dose minima assoluta di 0,1 mg.'
     ],
     calculateDoses: (w: number) => {
-      const calcMg = Math.max(0.1, Math.min(Number((w * 0.02).toFixed(2)), 0.5));
+      const maxAtropina = w < 30 ? 0.5 : 1.0;
+      const calcMg = Math.max(0.1, Math.min(Number((w * 0.02).toFixed(2)), maxAtropina));
       const isMin = w * 0.02 < 0.1;
-      const isMax = w * 0.02 >= 0.5;
+      const isMax = w * 0.02 >= maxAtropina;
       // Fiala 0,5 mg/mL o 1 mg/mL
       const vol05 = (calcMg / 0.5).toFixed(2);
 
@@ -1377,12 +1383,12 @@ export const DRUGS_GROUP_1: DrugItem[] = [
         {
           label: 'EV / IO rapido',
           route: 'EV / IO',
-          rawFormula: '0,02 mg/kg (minima 0,1 mg; max 0,5 mg bambino / 1 mg adolescente)',
+          rawFormula: `0,02 mg/kg (minima 0,1 mg; max ${maxAtropina} mg)`,
           calculatedValue: `${calcMg} mg`,
           unit: 'mg',
           numericDose: calcMg,
           volumeInfo: `Con fiala 0,5 mg/1 mL: aspirare ${vol05} mL (fiala 1 mg/mL diluita a 10 mL: ${(calcMg * 10).toFixed(1)} mL)`,
-          maxDoseCap: 'Dose minima 0,1 mg (per evitare bradicardia paradossa) | Max 0,5 mg',
+          maxDoseCap: `Dose minima 0,1 mg (per evitare bradicardia paradossa) | Max ${maxAtropina} mg (${w < 30 ? 'bambino <30 kg' : 'adolescente/adulto'})`,
           isMaxDoseReached: isMax,
           alertNote: isMin ? 'Attenzione: applicata dose minima assoluta di sicurezza di 0,1 mg' : undefined,
           frequencyOrDuration: 'Ripetibile una volta dopo 3-5 minuti'

@@ -9,11 +9,10 @@ export const CATEGORIES: CategoryInfo[] = [
   { id: 'cardiovascolari', name: 'Cardiovascolari e ALS Pediatrico', shortName: 'ALS / Cardio', icon: 'HeartPulse', badgeColor: 'bg-red-50 text-red-700 border-red-200', sectionNum: 7 },
   { id: 'antibiotici', name: 'Antibiotici di Comune Impiego', shortName: 'Antibiotici', icon: 'ShieldAlert', badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200', sectionNum: 8 },
   { id: 'antiemetici', name: 'Antiemetici', shortName: 'Antiemetici', icon: 'Activity', badgeColor: 'bg-cyan-50 text-cyan-700 border-cyan-200', sectionNum: 9 },
-  { id: 'antispastici', name: 'Antispastici e Sintomatici', shortName: 'Antispastici', icon: 'Sparkles', badgeColor: 'bg-violet-50 text-violet-700 border-violet-200', sectionNum: 10 },
-  { id: 'antidoti', name: 'Antidoti e Intossicazioni', shortName: 'Antidoti', icon: 'LifeBuoy', badgeColor: 'bg-purple-50 text-purple-700 border-purple-200', sectionNum: 11 },
-  { id: 'liquidi', name: 'Liquidi EV e Ipoglicemia', shortName: 'Liquidi / Glicemia', icon: 'Droplets', badgeColor: 'bg-sky-50 text-sky-700 border-sky-200', sectionNum: 12 },
-  { id: 'sepsi', name: 'Sepsi e Shock Settico', shortName: 'Sepsi / Shock', icon: 'Flame', badgeColor: 'bg-orange-50 text-orange-700 border-orange-200', sectionNum: 13 },
-  { id: 'dka', name: 'Chetoacidosi Diabetica (DKA)', shortName: 'DKA Diabete', icon: 'Crosshair', badgeColor: 'bg-pink-50 text-pink-700 border-pink-200', sectionNum: 14 }
+  { id: 'antidoti', name: 'Antidoti e Intossicazioni', shortName: 'Antidoti', icon: 'LifeBuoy', badgeColor: 'bg-purple-50 text-purple-700 border-purple-200', sectionNum: 10 },
+  { id: 'liquidi', name: 'Liquidi EV e Ipoglicemia', shortName: 'Liquidi / Glicemia', icon: 'Droplets', badgeColor: 'bg-sky-50 text-sky-700 border-sky-200', sectionNum: 11 },
+  { id: 'sepsi', name: 'Sepsi e Shock Settico', shortName: 'Sepsi / Shock', icon: 'Flame', badgeColor: 'bg-orange-50 text-orange-700 border-orange-200', sectionNum: 12 },
+  { id: 'dka', name: 'Chetoacidosi Diabetica (DKA)', shortName: 'DKA Diabete', icon: 'Crosshair', badgeColor: 'bg-pink-50 text-pink-700 border-pink-200', sectionNum: 13 }
 ];
 
 export const DRUG_CATEGORIES = CATEGORIES;
