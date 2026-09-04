@@ -429,14 +429,28 @@ export default function App() {
       />
 
       {/* Bento Footer */}
-      <footer className="bg-white border-t border-slate-200/90 py-5 text-center text-xs text-slate-500 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="font-semibold text-slate-700">Prontuario Farmaci Pediatrici PS © 2026</span>
-            <span className="text-slate-400">• created by Dott. Maestri Lorenzo</span>
+      <footer className="bg-white border-t border-slate-200/90 py-6 text-slate-500 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3.5">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs">
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="font-bold text-slate-800">Prontuario Rapido Pediatrico PS © 2026</span>
+              <span className="text-slate-400">• created by Dott. Maestri Lorenzo</span>
+            </div>
+            <span className="text-[11px] text-slate-500 font-medium">
+              Supporto informativo per personale sanitario abilitato
+            </span>
           </div>
-          <span className="text-[11px] text-slate-400 font-medium">Verificare sempre la dose massima per peso e le caratteristiche del paziente</span>
+
+          <div className="pt-3 border-t border-slate-100 text-[10.5px] sm:text-[11px] text-slate-400 leading-relaxed space-y-1">
+            <p>
+              <strong className="text-slate-600 font-semibold uppercase tracking-wider text-[10px]">Disclaimer Medico-Legale & Esonero di Responsabilità:</strong>{' '}
+              Questo applicativo ha finalità esclusivamente informative e di supporto rapido per medici e personale sanitario abilitato; non costituisce parere medico, né sostituisce in alcun modo l'esame obiettivo, la diagnosi, la perizia o il giudizio clinico insindacabile del sanitario curante. Il Dott. Maestri Lorenzo declina espressamente ogni responsabilità civile, penale e professionale per danni diretti, indiretti, accidentali o consequenziali derivanti dall'utilizzo dell'applicazione, da malfunzionamenti o da eventuali refusi, imprecisioni, omissioni o calcoli generati.
+            </p>
+            <p>
+              Prima della prescrizione o della somministrazione di qualsiasi farmaco, principio attivo o infusione, è obbligo inderogabile del medico e dell'operatore sanitario verificare personalmente e con la massima diligenza l'appropriatezza terapeutica, le dosi ponderali, i dosaggi limite (cap massimo), le vie di somministrazione, le compatibilità, le allergie e le controindicazioni consultando le schede tecniche ufficiali ministeriali (RCP AIFA / EMA) e le linee guida scientifiche aggiornate.
+            </p>
+          </div>
         </div>
       </footer>
 

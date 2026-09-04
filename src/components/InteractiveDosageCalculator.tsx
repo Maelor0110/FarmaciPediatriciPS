@@ -131,6 +131,9 @@ Note: ${dose.alertNote || selectedDrug.adverseEffectsAndNotes[0] || 'N/A'}`;
     if (r.includes('IN') || r.includes('BUCCALE')) return 'bg-cyan-50 text-cyan-700 border-cyan-200';
     if (r.includes('INALATORIA')) return 'bg-teal-50 text-teal-700 border-teal-200';
     if (r.includes('OS') || r.includes('PR')) return 'bg-blue-50 text-blue-700 border-blue-200';
+    if (r.includes('OFTALMIC') || r.includes('COLLIRIO') || r.includes('OCULARE')) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (r.includes('AURICOLAR') || r.includes('OTOLOGIC')) return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+    if (r.includes('TOPIC') || r.includes('CUTANE') || r.includes('POMATA') || r.includes('CREMA') || r.includes('GEL')) return 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200';
     return 'bg-slate-50 text-slate-700 border-slate-200';
   };
 

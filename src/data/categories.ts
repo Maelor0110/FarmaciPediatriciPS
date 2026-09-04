@@ -12,7 +12,10 @@ export const CATEGORIES: CategoryInfo[] = [
   { id: 'antidoti', name: 'Antidoti e Intossicazioni', shortName: 'Antidoti', icon: 'LifeBuoy', badgeColor: 'bg-purple-50 text-purple-700 border-purple-200', sectionNum: 10 },
   { id: 'liquidi', name: 'Liquidi EV e Ipoglicemia', shortName: 'Liquidi / Glicemia', icon: 'Droplets', badgeColor: 'bg-sky-50 text-sky-700 border-sky-200', sectionNum: 11 },
   { id: 'sepsi', name: 'Sepsi e Shock Settico', shortName: 'Sepsi / Shock', icon: 'Flame', badgeColor: 'bg-orange-50 text-orange-700 border-orange-200', sectionNum: 12 },
-  { id: 'dka', name: 'Chetoacidosi Diabetica (DKA)', shortName: 'DKA Diabete', icon: 'Crosshair', badgeColor: 'bg-pink-50 text-pink-700 border-pink-200', sectionNum: 13 }
+  { id: 'dka', name: 'Chetoacidosi Diabetica (DKA)', shortName: 'DKA Diabete', icon: 'Crosshair', badgeColor: 'bg-pink-50 text-pink-700 border-pink-200', sectionNum: 13 },
+  { id: 'oftalmici', name: 'Oculistica: Colliri e Pomate Oftalmiche', shortName: 'Colliri / Occhi', icon: 'Eye', badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200', sectionNum: 14 },
+  { id: 'otologici', name: 'Otorino: Gocce Auricolari per Otite', shortName: 'Gocce Orecchio', icon: 'Ear', badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200', sectionNum: 15 },
+  { id: 'dermatologici', name: 'Dermatologia: Pomate e Creme (Cortisonici, Antistaminici)', shortName: 'Pomate e Creme', icon: 'Sparkles', badgeColor: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200', sectionNum: 16 }
 ];
 
 export const DRUG_CATEGORIES = CATEGORIES;

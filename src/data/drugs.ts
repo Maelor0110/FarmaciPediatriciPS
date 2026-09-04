@@ -1,10 +1,12 @@
 import { DRUGS_GROUP_1 } from './drugsGroup1';
 import { DRUGS_GROUP_2 } from './drugsGroup2';
+import { DRUGS_GROUP_3 } from './drugsGroup3';
 import { DrugItem } from '../types';
 
 export const ALL_DRUGS: DrugItem[] = [
   ...DRUGS_GROUP_1,
-  ...DRUGS_GROUP_2
+  ...DRUGS_GROUP_2,
+  ...DRUGS_GROUP_3
 ];
 
 export function getDrugById(id: string): DrugItem | undefined {

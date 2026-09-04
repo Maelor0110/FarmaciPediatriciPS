@@ -10,7 +10,10 @@ export type DrugCategory =
   | 'antidoti'
   | 'liquidi'
   | 'sepsi'
-  | 'dka';
+  | 'dka'
+  | 'oftalmici'
+  | 'otologici'
+  | 'dermatologici';
 
 export interface CategoryInfo {
   id: DrugCategory;
