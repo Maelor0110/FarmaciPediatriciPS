@@ -24,41 +24,37 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="bg-slate-950 text-white border-b border-slate-800 transition-colors shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Top Row: Brand & Author on the Left, Quick Utilities on the Right */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 sm:py-5 border-b border-slate-800/80 gap-3 sm:gap-4">
+        {/* Top Row: Title, Author & Utilities all aligned horizontally */}
+        <div className="flex flex-row items-center justify-between py-3.5 sm:py-4 border-b border-slate-800/80 gap-3 sm:gap-4">
           
-          {/* Brand Identity & Medical Reference */}
-          <div className="flex items-center space-x-3.5 sm:space-x-4 min-w-0">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-teal-400 p-0.5 shadow-xl shadow-blue-500/20 flex items-center justify-center shrink-0">
+          {/* Brand Identity & Medical Reference - Strictly Horizontal */}
+          <div className="flex items-center space-x-3 sm:space-x-3.5 min-w-0 flex-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-13 md:h-13 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-teal-400 p-0.5 shadow-lg shadow-blue-500/20 flex items-center justify-center shrink-0">
               <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-                <Activity className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-teal-400" />
+                <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-teal-400" />
               </div>
             </div>
             
-            <div className="min-w-0">
-              <div className="flex items-center space-x-2.5 flex-wrap">
-                <h1 className="font-black text-lg sm:text-2xl md:text-3xl tracking-tight text-white leading-tight">
-                  Prontuario Rapido Pediatrico PS
-                </h1>
-                <span className="inline-flex items-center text-[10px] sm:text-xs font-black uppercase tracking-wider bg-rose-500/20 text-rose-300 px-2.5 py-0.5 rounded-full border border-rose-500/35 shrink-0">
-                  Urgenza PS
-                </span>
-              </div>
+            {/* Title & Author on a single horizontal line */}
+            <div className="flex items-center flex-wrap gap-x-2.5 sm:gap-x-3 gap-y-1 min-w-0">
+              <h1 className="font-black text-base sm:text-xl md:text-2xl tracking-tight text-white leading-tight shrink-0">
+                Prontuario Rapido Pediatrico PS
+              </h1>
               
-              <div className="flex items-center flex-wrap gap-x-2.5 text-xs sm:text-sm md:text-base mt-1">
-                <span className="text-teal-300 font-bold tracking-tight">
-                  created by Dott. Maestri Lorenzo
-                </span>
-                <span className="text-slate-500">•</span>
-                <span className="text-slate-400 font-medium">
-                  Pronto Soccorso ed Emergenza Pediatrica
-                </span>
-              </div>
+              <span className="hidden md:inline-block text-slate-600 font-bold">•</span>
+              
+              <span className="text-teal-300 font-bold text-xs sm:text-sm tracking-tight bg-teal-950/60 border border-teal-500/30 px-2.5 py-0.5 rounded-lg whitespace-nowrap shrink-0">
+                created by Dott. Maestri Lorenzo
+              </span>
+
+              <span className="hidden lg:inline-flex text-slate-400 font-medium text-xs whitespace-nowrap">
+                • Pronto Soccorso Pediatrico
+              </span>
             </div>
           </div>
 
           {/* Right Action Utilities */}
-          <div className="flex items-center space-x-2.5 sm:space-x-3 self-end sm:self-center shrink-0">
+          <div className="flex items-center space-x-2 sm:space-x-2.5 shrink-0">
             {/* Quick Favorites Filter Button */}
             <button
               type="button"
